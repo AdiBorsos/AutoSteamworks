@@ -18,6 +18,7 @@ namespace AutoSteamApp
         private static volatile bool shouldStop = false;
         private static volatile bool shouldStart = false;
 
+        private static Random rnd = new Random();
         private static KeystrokeAPI api = new KeystrokeAPI();
         private static readonly Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
         {
@@ -52,12 +53,16 @@ namespace AutoSteamApp
                 ulong starter = 0x140000000 + 0x4D68970;
                 var pointerAddress = MemoryHelper.Read<ulong>(mhw, starter);
                 // offset the address
-                var offsetAddress = pointerAddress + 0x350;
+                var offset_Address = pointerAddress + 0x350;
+                var offset_NumberOfButtonsPressed = offset_Address + 8;
 
                 while (!shouldStop)
                 {
+                    bool pressedThisCycle = false;
+
                     // value of the offset address
-                    var actualSequence = MemoryHelper.Read<int>(mhw, offsetAddress);
+                    var actualSequence = MemoryHelper.Read<int>(mhw, offset_Address);
+
                     if (actualSequence == 0)
                     {
                         // wait for init of Steamworks 
@@ -71,18 +76,42 @@ namespace AutoSteamApp
                     keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
 
                     var ordered = keyOrder.OrderBy(x => x.Value).ToList();
+                    Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
 
-                    Console.WriteLine($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
-
-                    foreach (var item in ordered)
+                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.NoButtonPressed)
                     {
+                        var item = ordered[0];
                         var keyToPressNow = item.Key;
                         sim.Keyboard.KeyDown(keyToPressNow);
                         Thread.Sleep((int)Settings.DelayBetweenKeys);
                         sim.Keyboard.KeyUp(keyToPressNow);
+
+                        pressedThisCycle = true;
                     }
 
-                    Thread.Sleep((int)Settings.DelayBetweenCombo);
+                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.OneButtonPressed)
+                    {
+                        var item = ordered[1];
+                        var keyToPressNow = item.Key;
+                        sim.Keyboard.KeyDown(keyToPressNow);
+                        Thread.Sleep((int)Settings.DelayBetweenKeys);
+                        sim.Keyboard.KeyUp(keyToPressNow);
+
+                        pressedThisCycle = true;
+                    }
+
+                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.TwoButtonsPressed)
+                    {
+                        var item = ordered[2];
+                        var keyToPressNow = item.Key;
+                        sim.Keyboard.KeyDown(keyToPressNow);
+                        Thread.Sleep((int)Settings.DelayBetweenKeys);
+                        sim.Keyboard.KeyUp(keyToPressNow);
+
+                        pressedThisCycle = true;
+                    }
+
+                    Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
                 }
 
                 api.Dispose();
@@ -121,10 +150,10 @@ namespace AutoSteamApp
             }
             catch
             {
-                Console.WriteLine($"Error trying to find '{ProcessName}' process.");
+                Logger.LogError($"Error trying to find '{ProcessName}' process.");
             }
 
-            Console.WriteLine($"Looks like the game is not running. It should...");
+            Logger.LogError($"Looks like the game is not running. It should...");
 
             return null;
         }

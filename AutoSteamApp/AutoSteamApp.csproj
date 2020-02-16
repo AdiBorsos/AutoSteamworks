@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\ButtonIndex.cs" />
     <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\MemoryHelper.cs" />
     <Compile Include="Core\Settings.cs" />

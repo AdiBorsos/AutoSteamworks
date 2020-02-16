@@ -8,7 +8,8 @@ namespace AutoSteamApp.Core
     {
         public static T Read<T>(Process process, ulong address) where T : struct
         {
-            byte[] bytes = new byte[Marshal.SizeOf(typeof(T))];
+            Type outputType = typeof(T).IsEnum ? Enum.GetUnderlyingType(typeof(T)) : typeof(T);
+            byte[] bytes = new byte[Marshal.SizeOf(outputType)];
 
             int lpNumberOfBytesRead = 0;
             WindowsApi.ReadProcessMemory(process.Handle, (IntPtr)address, bytes, bytes.Length, ref lpNumberOfBytesRead);
@@ -18,7 +19,7 @@ namespace AutoSteamApp.Core
 
             try
             {
-                result = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+                result = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), outputType);
             }
             finally
             {
@@ -28,7 +29,7 @@ namespace AutoSteamApp.Core
             return result;
         }
 
-        public static byte[] Read(Process process, ulong address, int length)
+        public static byte[] ReadUnmanaged(Process process, ulong address, int length)
         {
             byte[] bytes = new byte[length];
 
