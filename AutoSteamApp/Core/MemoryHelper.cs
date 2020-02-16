@@ -27,5 +27,15 @@ namespace AutoSteamApp.Core
 
             return result;
         }
+
+        public static byte[] Read(Process process, ulong address, int length)
+        {
+            byte[] bytes = new byte[length];
+
+            int lpNumberOfBytesRead = 0;
+            WindowsApi.ReadProcessMemory(process.Handle, (IntPtr)address, bytes, bytes.Length, ref lpNumberOfBytesRead);
+
+            return bytes;
+        }
     }
 }
