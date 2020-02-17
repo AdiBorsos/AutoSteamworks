@@ -1,11 +1,9 @@
 ﻿namespace AutoSteamApp.Core
 {
-    enum ButtonIndex : byte
+    enum ButtonPressingState : byte
     {
-        NoButtonPressed = 0,
-        OneButtonPressed = 4,
-        TwoButtonsPressed = 6,
+        BeginningOfSequence = 0,
 
-        NoMoreFuel = 7
+        EndOfGame = 7
     }
 }

@@ -91,6 +91,8 @@ namespace AutoSteamApp.Core
         [DllImport("kernel32.dll")]
         public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
 
+        [DllImport("kernel32")]
+        static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, int dwSize, ref int nNumberOfBytesWritten);
 
         [Flags]
         public enum WindowSizePositionFlag : uint

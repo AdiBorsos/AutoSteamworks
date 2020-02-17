@@ -17,7 +17,7 @@ namespace AutoSteamApp.Core
 
                 try
                 {
-                    File.AppendAllText("log.txt", message);
+                    File.AppendAllLines("log.txt", new string[] { message });
                 }
                 catch
                 {
@@ -33,7 +33,7 @@ namespace AutoSteamApp.Core
             
             try
             {
-                File.AppendAllText("log.txt", message);
+                File.AppendAllLines("log.txt", new string[] { message });
             }
             catch
             {

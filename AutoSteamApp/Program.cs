@@ -22,9 +22,11 @@ namespace AutoSteamApp
         private static KeystrokeAPI api = new KeystrokeAPI();
         private static readonly Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
         {
-            { VirtualKeyCode.VK_A, -1 },
-            { VirtualKeyCode.VK_W, -1 },
-            { VirtualKeyCode.VK_D, -1 }
+            { VirtualKeyCode.VK_A, 999 },
+            { VirtualKeyCode.VK_W, 999 },
+            { VirtualKeyCode.VK_D, 999 },
+            { VirtualKeyCode.VK_Q, 999 },
+            { VirtualKeyCode.VK_Z, 999 },
         };
 
         static void Main(string[] args)
@@ -46,6 +48,8 @@ namespace AutoSteamApp
                 mhw = GetMHW();
             }
 
+            SaveData sd = new SaveData(mhw);
+
             if (mhw != null)
             {
                 InputSimulator sim = new InputSimulator();
@@ -54,68 +58,100 @@ namespace AutoSteamApp
                 var pointerAddress = MemoryHelper.Read<ulong>(mhw, starter);
                 // offset the address
                 var offset_Address = pointerAddress + 0x350;
-                var offset_NumberOfButtonsPressed = offset_Address + 8;
+                var offset_buttonPressState = offset_Address + 8;
 
                 while (!shouldStop)
                 {
-                    bool pressedThisCycle = false;
+                    Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
                     // value of the offset address
                     var actualSequence = MemoryHelper.Read<int>(mhw, offset_Address);
-
                     if (actualSequence == 0)
                     {
-                        // wait for init of Steamworks 
+                        // wait for init of Steamworks
                         continue;
                     }
 
                     var orderBytes = BitConverter.GetBytes(actualSequence);
-
-                    keyOrder[VirtualKeyCode.VK_A] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // A
-                    keyOrder[VirtualKeyCode.VK_W] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // W
-                    keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
+                    if (Settings.IsAzerty)
+                    {
+                        keyOrder[VirtualKeyCode.VK_Q] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // Q
+                        keyOrder[VirtualKeyCode.VK_Z] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // Z
+                        keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
+                    }
+                    else
+                    {
+                        keyOrder[VirtualKeyCode.VK_A] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // A
+                        keyOrder[VirtualKeyCode.VK_W] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // W
+                        keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
+                    }
 
                     var ordered = keyOrder.OrderBy(x => x.Value).ToList();
                     Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
 
-                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.NoButtonPressed)
+                    int index = 0;
+                    while (index < 3)
                     {
-                        var item = ordered[0];
-                        var keyToPressNow = item.Key;
-                        sim.Keyboard.KeyDown(keyToPressNow);
-                        Thread.Sleep((int)Settings.DelayBetweenKeys);
-                        sim.Keyboard.KeyUp(keyToPressNow);
+                        var before = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
 
-                        pressedThisCycle = true;
+                        var item = ordered[index];
+
+                        PressKey(sim, item.Key);
+
+                        byte after = before;
+                        while (before == after)
+                        {
+                            after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+
+                            PressKey(sim, item.Key);
+
+                            if (shouldStop)
+                            {
+                                break;
+                            }
+                        }
+
+                        index++;
                     }
 
-                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.OneButtonPressed)
+                    var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                    while (currentState != (int)ButtonPressingState.BeginningOfSequence)
                     {
-                        var item = ordered[1];
-                        var keyToPressNow = item.Key;
-                        sim.Keyboard.KeyDown(keyToPressNow);
-                        Thread.Sleep((int)Settings.DelayBetweenKeys);
-                        sim.Keyboard.KeyUp(keyToPressNow);
+                        Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
 
-                        pressedThisCycle = true;
+                        // no more fuel
+                        if (currentState == (int)ButtonPressingState.EndOfGame)
+                        {
+                            if (sd.NaturalFuel + sd.StoredFuel < 10)
+                            {
+                                shouldStop = true;
+                                break;
+                            }
+
+                            if (sd.SteamGauge == 0)
+                            {
+                                PressKey(sim, VirtualKeyCode.SPACE);
+                            }
+                        }
+
+                        if (shouldStop)
+                        {
+                            break;
+                        }
+
+                        currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
                     }
-
-                    if (MemoryHelper.Read<ButtonIndex>(mhw, offset_NumberOfButtonsPressed) == ButtonIndex.TwoButtonsPressed)
-                    {
-                        var item = ordered[2];
-                        var keyToPressNow = item.Key;
-                        sim.Keyboard.KeyDown(keyToPressNow);
-                        Thread.Sleep((int)Settings.DelayBetweenKeys);
-                        sim.Keyboard.KeyUp(keyToPressNow);
-
-                        pressedThisCycle = true;
-                    }
-
-                    Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
                 }
 
                 api.Dispose();
             }
+        }
+
+        private static void PressKey(InputSimulator sim, VirtualKeyCode key)
+        {
+            sim.Keyboard.KeyPress(key);
+
+            Logger.LogInfo($"Pressed: {key}!");
         }
 
         private static void HookKeyboardEvents()
@@ -127,11 +163,14 @@ namespace AutoSteamApp
                     if (character.KeyCode == KeyCode.Insert)
                     {
                         shouldStart = true;
+                        Logger.LogInfo($"Captured Start!");
                     }
 
                     if (character.KeyCode == KeyCode.Escape)
                     {
                         shouldStop = true;
+
+                        Logger.LogInfo($"Captured Escape!");
 
                         Application.Exit();
                     }

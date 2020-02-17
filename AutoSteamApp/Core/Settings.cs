@@ -48,5 +48,21 @@ namespace AutoSteamApp.Core
 #endif
             }
         }
+
+        private static bool _isAzerty = false;
+        public static bool IsAzerty
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsAzerty"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"], out _isAzerty) ?
+                        _isAzerty :
+                        (_isAzerty = false);
+                }
+
+                return _isAzerty;
+            }
+        }
     }
 }
