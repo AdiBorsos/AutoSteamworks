@@ -47,7 +47,7 @@ namespace AutoSteamApp
                 Thread.Sleep(1000);
                 mhw = GetMHW();
             }
-
+            
             SaveData sd = new SaveData(mhw);
 
             if (mhw != null)
@@ -65,85 +65,120 @@ namespace AutoSteamApp
                     Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
                     // value of the offset address
-                    var actualSequence = MemoryHelper.Read<int>(mhw, offset_Address);
-                    if (actualSequence == 0)
+                    var ordered = ExtractCorrectSequence(mhw, offset_Address);
+                    if (ordered == null)
                     {
-                        // wait for init of Steamworks
+                        // try again..
                         continue;
                     }
-
-                    var orderBytes = BitConverter.GetBytes(actualSequence);
-                    if (Settings.IsAzerty)
-                    {
-                        keyOrder[VirtualKeyCode.VK_Q] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // Q
-                        keyOrder[VirtualKeyCode.VK_Z] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // Z
-                        keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
-                    }
-                    else
-                    {
-                        keyOrder[VirtualKeyCode.VK_A] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // A
-                        keyOrder[VirtualKeyCode.VK_W] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // W
-                        keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
-                    }
-
-                    var ordered = keyOrder.OrderBy(x => x.Value).ToList();
-                    Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
 
                     int index = 0;
                     while (index < 3)
                     {
-                        var before = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
-
-                        var item = ordered[index];
-
-                        PressKey(sim, item.Key);
-
-                        byte after = before;
-                        while (before == after)
+                        try
                         {
-                            after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                            var before = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
 
-                            PressKey(sim, item.Key);
+                            var item = ordered[index];
 
-                            if (shouldStop)
+                            //PressKey(sim, item.Key);
+
+                            byte after = before;
+                            while (before == after)
                             {
-                                break;
-                            }
-                        }
+                                PressKey(sim, item.Key);
 
-                        index++;
+                                after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                            }
+
+                            index++;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Trying to press button sequence: {ex.Message}");
+                        }
+                    }
+
+                    if (shouldStop)
+                    {
+                        break;
                     }
 
                     var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
                     while (currentState != (int)ButtonPressingState.BeginningOfSequence)
                     {
-                        Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
-
-                        // no more fuel
-                        if (currentState == (int)ButtonPressingState.EndOfGame)
+                        try
                         {
-                            if (sd.NaturalFuel + sd.StoredFuel < 10)
+                            Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
+
+                            // no more fuel
+                            if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
-                                shouldStop = true;
+                                if (sd.NaturalFuel + sd.StoredFuel < 10)
+                                {
+                                    shouldStop = true;
+                                    break;
+                                }
+
+                                if (sd.SteamGauge == 0)
+                                {
+                                    PressKey(sim, VirtualKeyCode.SPACE);
+                                }
+                            }
+
+                            if (shouldStop)
+                            {
                                 break;
                             }
 
-                            if (sd.SteamGauge == 0)
-                            {
-                                PressKey(sim, VirtualKeyCode.SPACE);
-                            }
+                            currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
                         }
-
-                        if (shouldStop)
+                        catch (Exception ex)
                         {
-                            break;
+                            Logger.LogError($"Trying to finish up combo: {ex.Message}");
                         }
-
-                        currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
                     }
                 }
 
                 api.Dispose();
+            }
+        }
+
+        private static List<KeyValuePair<VirtualKeyCode, int>> ExtractCorrectSequence(Process mhw, ulong offset_Address)
+        {
+            try
+            {
+                var actualSequence = MemoryHelper.Read<int>(mhw, offset_Address);
+                if (actualSequence == 0)
+                {
+                    // wait for init of Steamworks
+                    return null;
+                }
+
+                var orderBytes = BitConverter.GetBytes(actualSequence);
+                if (Settings.IsAzerty)
+                {
+                    keyOrder[VirtualKeyCode.VK_Q] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // Q
+                    keyOrder[VirtualKeyCode.VK_Z] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // Z
+                    keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
+                }
+                else
+                {
+                    keyOrder[VirtualKeyCode.VK_A] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // A
+                    keyOrder[VirtualKeyCode.VK_W] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // W
+                    keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
+                }
+
+                var ordered = keyOrder.OrderBy(x => x.Value).ToList();
+                Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
+
+                return ordered;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Extracting Correct Sequence: {ex.Message}");
+
+                return null;
             }
         }
 

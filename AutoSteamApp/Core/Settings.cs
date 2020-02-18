@@ -37,6 +37,7 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static bool _isLogEnabled = false;
         public static bool EnableLog
         {
             get
@@ -44,7 +45,14 @@ namespace AutoSteamApp.Core
 #if DEBUG
                 return true;
 #else
-                return false;
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsLogEnabled"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["IsLogEnabled"], out _isLogEnabled) ?
+                        _isLogEnabled :
+                        (_isLogEnabled = false);
+                }
+
+                return _isAzerty;
 #endif
             }
         }

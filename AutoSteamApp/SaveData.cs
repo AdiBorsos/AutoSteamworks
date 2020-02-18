@@ -59,6 +59,7 @@ namespace AutoSteamApp
                 else if (play1 != p1Val)
                 {
                     _currentSlot = 0;
+                    Logger.LogInfo($"Identified slot number: 1");
                     return;
                 }
 
@@ -71,11 +72,12 @@ namespace AutoSteamApp
                 else if (play2 != p2Val)
                 {
                     _currentSlot = 1;
+                    Logger.LogInfo($"Identified slot number: 2");
                     return;
                 }
 
                 var p3 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(2 * 0x27E9F0);
-                var p3Val = MemoryHelper.Read<int>(mhw, p2 + 0xA0);
+                var p3Val = MemoryHelper.Read<int>(mhw, p3 + 0xA0);
                 if (play3 == -1)
                 {
                     play3 = p3Val;
@@ -83,6 +85,7 @@ namespace AutoSteamApp
                 else if (play3 != p3Val)
                 {
                     _currentSlot = 2;
+                    Logger.LogInfo($"Identified slot number: 3");
                     return;
                 }
             }
