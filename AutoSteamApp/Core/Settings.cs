@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Linq;
+using Keystroke.API;
 
 namespace AutoSteamApp.Core
 {
@@ -12,7 +14,7 @@ namespace AutoSteamApp.Core
             {
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenKeys"))
                 {
-                    return uint.TryParse(ConfigurationManager.AppSettings["DelayBetweenKeys"], out _DelayBetweenKeys) ?
+                    return uint.TryParse(ConfigurationManager.AppSettings["DelayBetweenKeys"].Trim(), out _DelayBetweenKeys) ?
                         _DelayBetweenKeys :
                         (_DelayBetweenKeys = 500);
                 }
@@ -28,7 +30,7 @@ namespace AutoSteamApp.Core
             {
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenCombo"))
                 {
-                    return uint.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"], out _DelayBetweenCombo) ?
+                    return uint.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out _DelayBetweenCombo) ?
                         _DelayBetweenCombo :
                         (_DelayBetweenCombo = 500);
                 }
@@ -47,7 +49,7 @@ namespace AutoSteamApp.Core
 #else
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsLogEnabled"))
                 {
-                    return bool.TryParse(ConfigurationManager.AppSettings["IsLogEnabled"], out _isLogEnabled) ?
+                    return bool.TryParse(ConfigurationManager.AppSettings["IsLogEnabled"].Trim(), out _isLogEnabled) ?
                         _isLogEnabled :
                         (_isLogEnabled = false);
                 }
@@ -64,12 +66,77 @@ namespace AutoSteamApp.Core
             {
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsAzerty"))
                 {
-                    return bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"], out _isAzerty) ?
+                    return bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"].Trim(), out _isAzerty) ?
                         _isAzerty :
                         (_isAzerty = false);
                 }
 
                 return _isAzerty;
+            }
+        }
+
+        private static int _keyCodeStart = -1;
+        public static int KeyCodeStart
+        {
+            get
+            {
+                if (_keyCodeStart != -1) { return _keyCodeStart; }
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStart"))
+                {
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStart"].Trim(), out _keyCodeStart)) 
+                    {
+                        try
+                        {
+                            KeyCode key = (KeyCode)_keyCodeStart;
+                            
+                            return _keyCodeStart;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Invalid number for 'Start' keycode: [{_keyCodeStart}]. Will use default instead! Exception: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogError($"Invalid number for 'Start' keycode: [{ConfigurationManager.AppSettings["keyCodeStart"]}]. Will use default instead!");
+                    }
+                }
+
+                return (_keyCodeStart = 45);
+            }
+        }
+
+
+        private static int _keyCodeStop = -1;
+        public static int KeyCodeStop
+        {
+            get
+            {
+                if (_keyCodeStop != -1) { return _keyCodeStop; }
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStop"))
+                {
+                    if(int.TryParse(ConfigurationManager.AppSettings["keyCodeStop"].Trim(), out _keyCodeStop))
+                    {
+                        try
+                        {
+                            KeyCode key = (KeyCode)_keyCodeStop;
+
+                            return _keyCodeStop;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Invalid number for 'Stop' keycode: [{_keyCodeStop}]. Will use default instead! Exception: {ex.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.LogError($"Invalid number for 'Stop' keycode: [{ConfigurationManager.AppSettings["keyCodeStop"]}]. Will use default instead!");
+                }
+
+                return (_keyCodeStop = 27);
             }
         }
     }

@@ -31,8 +31,8 @@ namespace AutoSteamApp
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Press 'Insert' to start typing");
-            Console.WriteLine("Press 'Escape' to end typing");
+            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
+            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
 
             DoWork();
         }
@@ -198,13 +198,13 @@ namespace AutoSteamApp
             {
                 api.CreateKeyboardHook((character) =>
                 {
-                    if (character.KeyCode == KeyCode.Insert)
+                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStart)
                     {
                         shouldStart = true;
                         Logger.LogInfo($"Captured Start!");
                     }
 
-                    if (character.KeyCode == KeyCode.Escape)
+                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
                     {
                         shouldStop = true;
 
