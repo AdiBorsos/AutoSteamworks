@@ -107,15 +107,16 @@ namespace AutoSteamApp
                     var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
                     while (currentState != (int)ButtonPressingState.BeginningOfSequence)
                     {
+                        Thread.Sleep(50);
+
                         try
                         {
-                            Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
-
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
                                 if (sd.NaturalFuel + sd.StoredFuel < 10)
                                 {
+                                    Logger.LogInfo("No more fuel, stopping bot.");
                                     shouldStop = true;
                                     break;
                                 }
@@ -148,6 +149,8 @@ namespace AutoSteamApp
         {
             try
             {
+                Thread.Sleep(rnd.Next((int)Settings.DelayBetweenCombo));
+
                 var actualSequence = MemoryHelper.Read<int>(mhw, offset_Address);
                 if (actualSequence == 0)
                 {
@@ -170,7 +173,7 @@ namespace AutoSteamApp
                 }
 
                 var ordered = keyOrder.OrderBy(x => x.Value).ToList();
-                Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Select(x => x.Key.ToString()))}");
+                Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Take(3).Select(x => x.Key.ToString()))}");
 
                 return ordered;
             }

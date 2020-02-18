@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using AutoSteamApp.Core;
 
 namespace AutoSteamApp
@@ -30,64 +31,35 @@ namespace AutoSteamApp
     {
         private static ulong StartAddress = 0x140000000 + 0x4DF3F00;
 
-        private static int _currentSlot = -1;
-        public static int CurrentSlot
-        {
-            get
-            {
-                return _currentSlot != -1 ? _currentSlot : 0;
-            }
-        }
+        public static int CurrentSlot { get; private set; } = -1;
 
         public static void Load(Process mhw)
         {
             var offset1 = MemoryHelper.Read<ulong>(mhw, StartAddress) + 0xA8;
 
-            //try slot1 
-            int play1 = -1;
-            int play2 = -1;
-            int play3 = -1;
+            int[] slotPlayTimes = new int[3] { -1, -1, -1 };
 
-            for (int i = 0; i < 3; i++)
+            while (CurrentSlot == -1)
             {
-                var p1 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(0 * 0x27E9F0);
-                var p1Val = MemoryHelper.Read<int>(mhw, p1 + 0xA0);
-                if (play1 == -1)
+                for (int slotId = 0; slotId < 3; slotId++)
                 {
-                    play1 = p1Val;
-                }
-                else if (play1 != p1Val)
-                {
-                    _currentSlot = 0;
-                    Logger.LogInfo($"Identified slot number: 1");
-                    return;
+                    var pointer1 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(slotId * 0x27E9F0);
+                    var p1Value = MemoryHelper.Read<int>(mhw, pointer1 + 0xA0);
+
+                    if (slotPlayTimes[slotId] == -1)
+                    {
+                        slotPlayTimes[slotId] = p1Value;
+                    }
+                    else if (slotPlayTimes[slotId] != p1Value)
+                    {
+                        CurrentSlot = slotId;
+                        Logger.LogInfo($"Identified slot number: {slotId + 1}");
+                        return;
+                    }
                 }
 
-                var p2 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(1 * 0x27E9F0);
-                var p2Val = MemoryHelper.Read<int>(mhw, p2 + 0xA0);
-                if (play2 == -1)
-                {
-                    play2 = p2Val;
-                }
-                else if (play2 != p2Val)
-                {
-                    _currentSlot = 1;
-                    Logger.LogInfo($"Identified slot number: 2");
-                    return;
-                }
-
-                var p3 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(2 * 0x27E9F0);
-                var p3Val = MemoryHelper.Read<int>(mhw, p3 + 0xA0);
-                if (play3 == -1)
-                {
-                    play3 = p3Val;
-                }
-                else if (play3 != p3Val)
-                {
-                    _currentSlot = 2;
-                    Logger.LogInfo($"Identified slot number: 3");
-                    return;
-                }
+                Logger.LogInfo($"Awaiting slot number!");
+                Thread.Sleep(1000);
             }
         }
     }
