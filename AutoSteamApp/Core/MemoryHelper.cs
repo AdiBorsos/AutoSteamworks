@@ -38,5 +38,20 @@ namespace AutoSteamApp.Core
 
             return bytes;
         }
+
+        public static bool Write<T>(Process process, IntPtr lpBaseAddress, T value) where T : struct
+        {
+            Type outputType = typeof(T).IsEnum ? Enum.GetUnderlyingType(typeof(T)) : typeof(T);
+            var bytes = new T[Marshal.SizeOf(outputType)];
+
+            bytes[0] = value;
+
+            return WindowsApi.WriteProcessMemory(process.Handle, lpBaseAddress, bytes, Marshal.SizeOf<T>(), out var bytesread);
+        }
+
+        public static bool WriteUnmanaged<T>(Process process, IntPtr lpBaseAddress, byte[] value)
+        {
+            return WindowsApi.WriteProcessMemory(process.Handle, lpBaseAddress, value, value.Length, out var bytesread);
+        }
     }
 }
