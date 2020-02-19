@@ -47,7 +47,7 @@ namespace AutoSteamApp
                 Thread.Sleep(1000);
                 mhw = GetMHW();
             }
-            
+
             SaveData sd = new SaveData(mhw);
 
             if (mhw != null)
@@ -159,6 +159,21 @@ namespace AutoSteamApp
                 }
 
                 var orderBytes = BitConverter.GetBytes(actualSequence);
+                // Some shitty logic suggested by https://github.com/Geobryn which fixes the accuracy
+                if (orderBytes[0] == 2 && orderBytes[1] == 0 && orderBytes[2] == 1)
+                {
+                    orderBytes[0] = 1;
+                    orderBytes[1] = 2;
+                    orderBytes[2] = 0;
+                }
+                else
+                if (orderBytes[0] == 1 && orderBytes[1] == 2 && orderBytes[2] == 0)
+                {
+                    orderBytes[0] = 2;
+                    orderBytes[1] = 0;
+                    orderBytes[2] = 1;
+                }
+
                 if (Settings.IsAzerty)
                 {
                     keyOrder[VirtualKeyCode.VK_Q] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // Q
