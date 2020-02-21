@@ -122,6 +122,8 @@ namespace AutoSteamApp
 
                         try
                         {
+                            PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip);
+
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
