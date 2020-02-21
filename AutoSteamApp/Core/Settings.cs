@@ -148,5 +148,37 @@ namespace AutoSteamApp.Core
                 return (_keyCodeStop = 27);
             }
         }
+        
+        private static int _keyCutsceneSkip = -1;
+        public static int KeyCutsceneSkip
+        {
+            get
+            {
+                if (_keyCutsceneSkip != -1) { return _keyCutsceneSkip; }
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
+                {
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out _keyCutsceneSkip))
+                    {
+                        try
+                        {
+                            KeyCode key = (KeyCode)_keyCutsceneSkip;
+
+                            return _keyCutsceneSkip;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Invalid number for 'CutsceneSkip' keycode: [{_keyCutsceneSkip}]. Will use default instead! Exception: {ex.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.LogError($"Invalid number for 'CutsceneSkip' keycode: [{ConfigurationManager.AppSettings["keyCutsceneSkip"]}]. Will use default instead!");
+                }
+
+                return (_keyCutsceneSkip = 88);
+            }
+        }
     }
 }
