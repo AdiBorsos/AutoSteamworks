@@ -7,7 +7,7 @@ namespace AutoSteamApp
     public class SaveData
     {
         private Process _mhw = null;
-        private ulong StartAddress = 0x140000000 + 0x4DF3F00;
+        private ulong StartAddress = Settings.Off_Base + Settings.Off_SaveData;
         private ulong offset1;
         private ulong offset2;
 
@@ -23,13 +23,13 @@ namespace AutoSteamApp
             PlayerData.Load(_mhw);
 
             offset1 = MemoryHelper.Read<ulong>(_mhw, StartAddress) + 0xA8;
-            offset2 = MemoryHelper.Read<ulong>(_mhw, offset1) + (ulong)(PlayerData.CurrentSlot * 0x27E9F0);
+            offset2 = MemoryHelper.Read<ulong>(_mhw, offset1) + (ulong)PlayerData.CurrentSlot * Settings.Off_DiffSlot;
         }
     }
 
     public static class PlayerData
     {
-        private static ulong StartAddress = 0x140000000 + 0x4DF3F00;
+        private static ulong StartAddress = Settings.Off_Base + Settings.Off_SaveData;
 
         public static int CurrentSlot { get; private set; } = -1;
 
@@ -43,7 +43,7 @@ namespace AutoSteamApp
             {
                 for (int slotId = 0; slotId < 3; slotId++)
                 {
-                    var pointer1 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)(slotId * 0x27E9F0);
+                    var pointer1 = MemoryHelper.Read<ulong>(mhw, offset1) + (ulong)slotId * Settings.Off_DiffSlot;
                     var p1Value = MemoryHelper.Read<int>(mhw, pointer1 + 0xA0);
 
                     if (slotPlayTimes[slotId] == -1)

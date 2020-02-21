@@ -7,6 +7,15 @@ namespace AutoSteamApp.Core
 {
     public static class Settings
     {
+        public static string SupportedGameVersion = "404549";
+
+        public static ulong Off_Base = 0x140000000;
+        public static ulong Off_SteamworksCombo = 0x4D6B970; 
+        
+        public static ulong Off_SaveData = 0x4DF6F00;
+        public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
+
+
         private static uint _DelayBetweenKeys = 500;
         public static uint DelayBetweenKeys
         {
@@ -54,7 +63,7 @@ namespace AutoSteamApp.Core
                         (_isLogEnabled = false);
                 }
 
-                return _isAzerty;
+                return _isLogEnabled;
 #endif
             }
         }

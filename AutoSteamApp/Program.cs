@@ -31,6 +31,8 @@ namespace AutoSteamApp
 
         static void Main(string[] args)
         {
+            Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
+
             Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
             Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
 
@@ -46,15 +48,24 @@ namespace AutoSteamApp
             {
                 Thread.Sleep(1000);
                 mhw = GetMHW();
-            }
+                
+                //MainWindowTitle = "MONSTER HUNTER: WORLD(404549)"
+                if (!mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
+                {
+                    var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
+                    Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
 
-            SaveData sd = new SaveData(mhw);
+                    mhw = null;
+                }
+            }
 
             if (mhw != null)
             {
                 InputSimulator sim = new InputSimulator();
+                SaveData sd = new SaveData(mhw);
 
-                ulong starter = 0x140000000 + 0x4D68970;
+                ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
+
                 var pointerAddress = MemoryHelper.Read<ulong>(mhw, starter);
                 // offset the address
                 var offset_Address = pointerAddress + 0x350;
@@ -221,6 +232,7 @@ namespace AutoSteamApp
 
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
                     {
+                        shouldStart = true;
                         shouldStop = true;
 
                         Logger.LogInfo($"Captured Escape!");
