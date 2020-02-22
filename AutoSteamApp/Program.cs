@@ -29,40 +29,119 @@ namespace AutoSteamApp
             { VirtualKeyCode.VK_Z, 999 },
         };
 
+        private static readonly Dictionary<int, List<int>> rndPatterns = new Dictionary<int, List<int>>()
+        {
+            { 0, new List<int> { 0, 1, 2 } },
+            { 1, new List<int> { 1, 0, 2 } },
+            { 2, new List<int> { 2, 0, 1 } },
+            { 3, new List<int> { 0, 2, 1 } },
+            { 4, new List<int> { 2, 1, 0 } },
+            { 5, new List<int> { 1, 2, 0 } }
+        };
+
+        private static Process mhw;
+        private static CancellationTokenSource ct = new CancellationTokenSource();
+        private static bool isRandomPath = false;
+
         static void Main(string[] args)
         {
+            Console.Title = $"Currently built for version: ({Settings.SupportedGameVersion})";
+
             Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
 
             Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
             Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
 
-            DoWork();
+            HookKeyboardEvents();
+
+            Startup();
+
+            if (isRandomPath)
+            {
+                DoRandomWork();
+            }
+            else
+            {
+                DoWork();
+            }
+        }
+
+        private static void Startup()
+        {
+            while (mhw == null && !ct.IsCancellationRequested)
+            {
+                mhw = GetMHW();
+                Thread.Sleep(1000);
+            }
+
+            while (!shouldStart && !ct.IsCancellationRequested)
+            {
+                Thread.Sleep(1000);
+            }
+
+            if (mhw != null &&
+                !mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
+            {
+                var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
+                Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
+
+                if (!Settings.UseRandomPatterns)
+                {
+                    Logger.LogError($"However, if you still want to use the application, please set UseRandomPatterns to TRUE in the AutoSteamApp.exe.config");
+                    Logger.LogError($"UseRandomPatterns to TRUE will push buttons randomly, which is still better than nothing.");
+
+                    mhw = null;
+                }
+                else
+                {
+                    Logger.LogError($"Version Not Supported and UseRandomPatters is ACTIVE - app will type randomly - to disable this see AutoSteamApp.exe.config!");
+                    isRandomPath = true;
+                }
+            }
+        }
+
+        private static void DoRandomWork()
+        {
+            if (mhw != null && !ct.IsCancellationRequested)
+            {
+                InputSimulator sim = new InputSimulator();
+                while (!shouldStop && !ct.IsCancellationRequested)
+                {
+                    List<int> orderBytes = rndPatterns[rnd.Next(0, 5)];
+
+                    if (Settings.IsAzerty)
+                    {
+                        keyOrder[VirtualKeyCode.VK_Q] = orderBytes[0];   // Q
+                        keyOrder[VirtualKeyCode.VK_Z] = orderBytes[1];   // Z
+                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
+                    }
+                    else
+                    {
+                        keyOrder[VirtualKeyCode.VK_A] = orderBytes[0];   // A
+                        keyOrder[VirtualKeyCode.VK_W] = orderBytes[1];   // W
+                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
+                    }
+
+                    foreach (var item in keyOrder.OrderBy(x => x.Value).Take(3).ToList())
+                    {
+                        PressKey(sim, item.Key, true);
+                    }
+
+                    PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip, true);
+
+                    PressKey(sim, VirtualKeyCode.SPACE, true);
+                }
+
+                api.Dispose();
+            }
         }
 
         private static void DoWork()
         {
-            HookKeyboardEvents();
-
-            Process mhw = GetMHW();
-            while (!shouldStart || mhw == null)
-            {
-                Thread.Sleep(1000);
-                mhw = GetMHW();
-                
-                //MainWindowTitle = "MONSTER HUNTER: WORLD(404549)"
-                if (!mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
-                {
-                    var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
-                    Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
-
-                    mhw = null;
-                }
-            }
-
-            if (mhw != null)
+            if (mhw != null && !ct.IsCancellationRequested)
             {
                 InputSimulator sim = new InputSimulator();
-                SaveData sd = new SaveData(mhw);
+                SaveData sd = new SaveData(mhw, ct);
 
                 ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
 
@@ -71,7 +150,7 @@ namespace AutoSteamApp
                 var offset_Address = pointerAddress + 0x350;
                 var offset_buttonPressState = offset_Address + 8;
 
-                while (!shouldStop)
+                while (!shouldStop && !ct.IsCancellationRequested)
                 {
                     Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
@@ -79,6 +158,8 @@ namespace AutoSteamApp
                     var ordered = ExtractCorrectSequence(mhw, offset_Address);
                     if (ordered == null)
                     {
+                        Logger.LogInfo("The Steamworks minigame is not started. Please enter the minigame and Press 'Space' so that you see the first letters on your screen.");
+
                         // try again..
                         continue;
                     }
@@ -92,10 +173,8 @@ namespace AutoSteamApp
 
                             var item = ordered[index];
 
-                            //PressKey(sim, item.Key);
-
                             byte after = before;
-                            while (before == after)
+                            while (before == after && !ct.IsCancellationRequested)
                             {
                                 PressKey(sim, item.Key);
 
@@ -116,7 +195,7 @@ namespace AutoSteamApp
                     }
 
                     var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
-                    while (currentState != (int)ButtonPressingState.BeginningOfSequence)
+                    while (currentState != (int)ButtonPressingState.BeginningOfSequence && !ct.IsCancellationRequested)
                     {
                         Thread.Sleep(50);
 
@@ -213,11 +292,20 @@ namespace AutoSteamApp
             }
         }
 
-        private static void PressKey(InputSimulator sim, VirtualKeyCode key)
+        private static void PressKey(InputSimulator sim, VirtualKeyCode key, bool delay = false)
         {
-            sim.Keyboard.KeyPress(key);
+            Logger.LogInfo($"Pressing: {key}!");
 
-            Logger.LogInfo($"Pressed: {key}!");
+            if (delay)
+            {
+                sim.Keyboard.KeyDown(key);
+                sim.Keyboard.Sleep(100);
+                sim.Keyboard.KeyUp(key);
+
+                return;
+            }
+
+            sim.Keyboard.KeyPress(key);
         }
 
         private static void HookKeyboardEvents()
@@ -234,6 +322,8 @@ namespace AutoSteamApp
 
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
                     {
+                        ct.Cancel();
+
                         shouldStart = true;
                         shouldStop = true;
 

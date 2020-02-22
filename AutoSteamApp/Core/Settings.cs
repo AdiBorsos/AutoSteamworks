@@ -7,6 +7,7 @@ namespace AutoSteamApp.Core
 {
     public static class Settings
     {
+        #region magic numbers
         public static string SupportedGameVersion = "404549";
 
         public static ulong Off_Base = 0x140000000;
@@ -14,7 +15,7 @@ namespace AutoSteamApp.Core
         
         public static ulong Off_SaveData = 0x4DF6F00;
         public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
-
+        #endregion
 
         private static uint _DelayBetweenKeys = 500;
         public static uint DelayBetweenKeys
@@ -84,6 +85,23 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static bool _useRandomPatters = false;
+        public static bool UseRandomPatterns
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "UseRandomPattern"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["UseRandomPattern"].Trim(), out _useRandomPatters) ?
+                        _useRandomPatters :
+                        (_useRandomPatters = false);
+                }
+
+                return _useRandomPatters;
+            }
+        }
+
+        #region keycodes
         private static int _keyCodeStart = -1;
         public static int KeyCodeStart
         {
@@ -115,7 +133,6 @@ namespace AutoSteamApp.Core
                 return (_keyCodeStart = 45);
             }
         }
-
 
         private static int _keyCodeStop = -1;
         public static int KeyCodeStop
@@ -180,5 +197,6 @@ namespace AutoSteamApp.Core
                 return (_keyCutsceneSkip = 88);
             }
         }
+        #endregion
     }
 }
