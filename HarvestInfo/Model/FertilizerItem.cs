@@ -5,12 +5,14 @@ namespace HarvestInfo.Model
 {
     public class FertilizerEventArgs : EventArgs
     {
+        public int Index;
         public int ID;
         public string Name;
         public int Amount;
 
         public FertilizerEventArgs(FertilizerItem m)
         {
+            this.Index = m.Index;
             this.ID = m.FertilizerId;
             this.Name = m.FertilizerName;
             this.Amount = m.Duration;
@@ -31,6 +33,7 @@ namespace HarvestInfo.Model
            { 7, "Growth Up (S)" },
            { 8, "Growth Up (L)" },
         };
+        public int Index { get; set; }
 
         private int _id;
         public int FertilizerId 

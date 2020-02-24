@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Media.Animation;
 using HarvestInfo.Core.Utility;
 using HarvestInfo.Model;
 using Keystroke.API;
@@ -23,7 +25,7 @@ namespace HarvestInfo
         public event KeyboardEventHandler OnToggleEvent;
         public event KeyboardEventHandler OnExitEvent;
 
-        ManualResetEvent ev = new ManualResetEvent(false);
+        public Storyboard ANIM_FERTILIZER_EXPIRE = null;
 
         public PrepWindow()
         {
@@ -33,12 +35,17 @@ namespace HarvestInfo
             HookEvents();
             StartReading();
             ChangeHarvestBoxPosition();
+         
+            ANIM_FERTILIZER_EXPIRE = FindResource("FertilizerExpiring") as Storyboard;
         }
 
         public void ChangeHarvestBoxPosition()
         {
-            double X = Settings.OverlaySettings.Position[0];
-            double Y = Settings.OverlaySettings.Position[1];
+            double w_Height = Screen.PrimaryScreen.Bounds.Height;
+            double w_Width = Screen.PrimaryScreen.Bounds.Width;
+
+            double X = Settings.OverlaySettings.Position[0] % w_Width;
+            double Y = Settings.OverlaySettings.Position[1] % w_Height;
 
             double Left = HarvestBoxComponent.Margin.Left;
             double Top = HarvestBoxComponent.Margin.Top;
@@ -63,8 +70,8 @@ namespace HarvestInfo
         {
             OnToggleEvent += PrepWindow_OnToggleEvent;
             OnExitEvent += PrepWindow_OnExitEvent;
-            Game.OnFertilizerCountLow += Game_OnFertilizerCountLow;
-            Game.OnHarvestCountLow += Game_OnHarvestCountLow;
+            Game.OnFertilizerCountLow += On_ThresholdsExceded;
+            Game.OnHarvestCountHigh += On_ThresholdsExceded;
         }
 
         private void PrepWindow_OnExitEvent(object source, EventArgs args)
@@ -93,6 +100,10 @@ namespace HarvestInfo
                 else
                 {
                     this.HarvestBoxComponent.Visibility = Visibility.Visible;
+
+                    ANIM_FERTILIZER_EXPIRE.Remove(this.warning);
+
+                    this.warning.Visibility = Visibility.Hidden;
                 }
             });
         }
@@ -102,18 +113,21 @@ namespace HarvestInfo
             OnToggleEvent -= PrepWindow_OnToggleEvent;
             OnExitEvent -= PrepWindow_OnExitEvent;
 
-            Game.OnFertilizerCountLow -= Game_OnFertilizerCountLow;
-            Game.OnHarvestCountLow -= Game_OnHarvestCountLow;
+            Game.OnFertilizerCountLow -= On_ThresholdsExceded;
+            Game.OnHarvestCountHigh -= On_ThresholdsExceded;
         }
 
-        private void Game_OnHarvestCountLow(object source, EventArgs args)
+        private void On_ThresholdsExceded(object source, EventArgs args)
         {
-            Logger.LogInfo("Count It is low");
-        }
+            Dispatch(() =>
+            {
+                if (this.HarvestBoxComponent.Visibility != Visibility.Visible)
+                {
+                    ANIM_FERTILIZER_EXPIRE.Begin(this.warning, true);
 
-        private void Game_OnFertilizerCountLow(object source, EventArgs args)
-        {
-            Logger.LogInfo("Fertilizer It is low");
+                    this.warning.Visibility = Visibility.Visible;
+                }
+            });
         }
 
         private void StartReading()

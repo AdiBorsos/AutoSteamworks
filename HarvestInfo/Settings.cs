@@ -149,6 +149,37 @@ namespace HarvestInfo
             }
         }
 
+        private static int _x = 0;
+        public static int X
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "Position_X"))
+                {
+                        _x = int.TryParse(ConfigurationManager.AppSettings["Position_X"].Trim(), out _x) ?
+                                _x :
+                                (_x = 0);
+                }
+
+                return _x;
+            }
+        }
+
+        private static int _y = 0;
+        public static int Y
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "Position_Y"))
+                {
+                    _y = int.TryParse(ConfigurationManager.AppSettings["Position_Y"].Trim(), out _y) ?
+                            _y :
+                            (_y = 0);
+                }
+
+                return _y;
+            }
+        }
         public static Overlay OverlaySettings { get; set; } = new Overlay();
 
         // Config template
@@ -156,7 +187,7 @@ namespace HarvestInfo
         public class Overlay
         {
             public bool Enabled { get; set; } = true;
-            public int[] Position { get; set; } = new int[2] { 0, 0 };
+            public int[] Position { get; set; } = new int[2] { X, Y };
         }
     }
 }

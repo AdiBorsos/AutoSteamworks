@@ -14,12 +14,12 @@ namespace HarvestInfo.Model
         public static HarvestBox Harvest = new HarvestBox();
 
         public delegate void GameEventHandler(object source, EventArgs args);
-        public static event GameEventHandler OnHarvestCountLow;
+        public static event GameEventHandler OnHarvestCountHigh;
         public static event GameEventHandler OnFertilizerCountLow;
 
         protected static void _onHarvestCountLow()
         {
-            OnHarvestCountLow?.Invoke(typeof(Game), EventArgs.Empty);
+            OnHarvestCountHigh?.Invoke(typeof(Game), EventArgs.Empty);
         }
 
         // On game close

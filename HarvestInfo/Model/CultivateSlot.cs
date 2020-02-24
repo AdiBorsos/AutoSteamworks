@@ -4,12 +4,14 @@ namespace HarvestInfo.Model
 {
     public class CultivateSlotArgs : EventArgs
     {
+        public int Index;
         public int ID;
         public int SlotNumber;
         public string Name;
 
         public CultivateSlotArgs(CultivateSlot m)
         {
+            this.Index = m.Index;
             this.ID = m.ItemId;
             this.Name = m.CultivateSlotName;
             this.SlotNumber = m.SlotNumber;
@@ -18,6 +20,8 @@ namespace HarvestInfo.Model
 
     public class CultivateSlot
     {
+        public int Index { get; set; }
+
         private int _id;
         public int ItemId
         {

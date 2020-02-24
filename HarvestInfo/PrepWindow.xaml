@@ -13,9 +13,18 @@
         ResizeMode="NoResize" Foreground="{x:Null}" 
         AllowsTransparency="True"
         WindowStyle="None">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Res/Resources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <widgets:HarvestBoxUI 
             x:Name="HarvestBoxComponent" 
-            Visibility="Visible"/>
+            Visibility="Hidden" VerticalAlignment="Top"/>
+
+        <Label Visibility="Hidden" x:Name="warning" Content="Check your harvestbox!" Opacity="0.8" Foreground="White" Padding="5,0,0,0" VerticalContentAlignment="Center" FontFamily="Arial" Background="Transparent" FontWeight="Bold" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="14" TextOptions.TextHintingMode="Animated"/>
     </Grid>
 </Window>

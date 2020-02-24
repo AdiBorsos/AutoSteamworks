@@ -59,6 +59,7 @@ namespace HarvestInfo.Model
             {
                 Fertilizers.Add(new FertilizerItem
                 {
+                    Index = i,
                     FertilizerId = 0,
                     Duration = 0
                 });
@@ -68,6 +69,7 @@ namespace HarvestInfo.Model
             {
                 CultivateSlots.Add(new CultivateSlot
                 {
+                    Index = i,
                     ItemId = 0,
                     SlotNumber = i
                 });
