@@ -20,14 +20,6 @@ namespace AutoSteamApp
 
         private static Random rnd = new Random();
         private static KeystrokeAPI api = new KeystrokeAPI();
-        private static readonly Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
-        {
-            { VirtualKeyCode.VK_A, 999 },
-            { VirtualKeyCode.VK_W, 999 },
-            { VirtualKeyCode.VK_D, 999 },
-            { VirtualKeyCode.VK_Q, 999 },
-            { VirtualKeyCode.VK_Z, 999 },
-        };
 
         private static readonly Dictionary<int, List<int>> rndPatterns = new Dictionary<int, List<int>>()
         {
@@ -109,18 +101,12 @@ namespace AutoSteamApp
                 {
                     List<int> orderBytes = rndPatterns[rnd.Next(0, 5)];
 
-                    if (Settings.IsAzerty)
+                    Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
                     {
-                        keyOrder[VirtualKeyCode.VK_Q] = orderBytes[0];   // Q
-                        keyOrder[VirtualKeyCode.VK_Z] = orderBytes[1];   // Z
-                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
-                    }
-                    else
-                    {
-                        keyOrder[VirtualKeyCode.VK_A] = orderBytes[0];   // A
-                        keyOrder[VirtualKeyCode.VK_W] = orderBytes[1];   // W
-                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
-                    }
+                        { Settings.KeyCodesToPress[0], orderBytes[0] },
+                        { Settings.KeyCodesToPress[1], orderBytes[1] },
+                        { Settings.KeyCodesToPress[2], orderBytes[2] },
+                    };
 
                     foreach (var item in keyOrder.OrderBy(x => x.Value).Take(3).ToList())
                     {
@@ -266,18 +252,12 @@ namespace AutoSteamApp
                     orderBytes[2] = 1;
                 }
 
-                if (Settings.IsAzerty)
+                Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
                 {
-                    keyOrder[VirtualKeyCode.VK_Q] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // Q
-                    keyOrder[VirtualKeyCode.VK_Z] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // Z
-                    keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
-                }
-                else
-                {
-                    keyOrder[VirtualKeyCode.VK_A] = int.Parse(((char)(orderBytes[0] + 0x30)).ToString());   // A
-                    keyOrder[VirtualKeyCode.VK_W] = int.Parse(((char)(orderBytes[1] + 0x30)).ToString());   // W
-                    keyOrder[VirtualKeyCode.VK_D] = int.Parse(((char)(orderBytes[2] + 0x30)).ToString());   // D
-                }
+                    { Settings.KeyCodesToPress[0], orderBytes[0] },
+                    { Settings.KeyCodesToPress[1], orderBytes[1] },
+                    { Settings.KeyCodesToPress[2], orderBytes[2] },
+                };
 
                 var ordered = keyOrder.OrderBy(x => x.Value).ToList();
                 Logger.LogInfo($"Pressing {string.Join(" -> ", ordered.Take(3).Select(x => x.Key.ToString()))}");

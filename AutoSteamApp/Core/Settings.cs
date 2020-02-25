@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using GregsStack.InputSimulatorStandard.Native;
 using Keystroke.API;
 
 namespace AutoSteamApp.Core
@@ -11,8 +12,8 @@ namespace AutoSteamApp.Core
         public static string SupportedGameVersion = "404549";
 
         public static ulong Off_Base = 0x140000000;
-        public static ulong Off_SteamworksCombo = 0x4D6B970; 
-        
+        public static ulong Off_SteamworksCombo = 0x4D6B970;
+
         public static ulong Off_SaveData = 0x4DF6F00;
         public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
         #endregion
@@ -111,12 +112,12 @@ namespace AutoSteamApp.Core
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStart"))
                 {
-                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStart"].Trim(), out _keyCodeStart)) 
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStart"].Trim(), out _keyCodeStart))
                     {
                         try
                         {
                             KeyCode key = (KeyCode)_keyCodeStart;
-                            
+
                             return _keyCodeStart;
                         }
                         catch (Exception ex)
@@ -143,7 +144,7 @@ namespace AutoSteamApp.Core
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStop"))
                 {
-                    if(int.TryParse(ConfigurationManager.AppSettings["keyCodeStop"].Trim(), out _keyCodeStop))
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStop"].Trim(), out _keyCodeStop))
                     {
                         try
                         {
@@ -165,7 +166,7 @@ namespace AutoSteamApp.Core
                 return (_keyCodeStop = 27);
             }
         }
-        
+
         private static int _keyCutsceneSkip = -1;
         public static int KeyCutsceneSkip
         {
@@ -195,6 +196,55 @@ namespace AutoSteamApp.Core
                 }
 
                 return (_keyCutsceneSkip = 88);
+            }
+        }
+
+        private static VirtualKeyCode[] _KeyCodesToPress = IsAzerty ?
+            new VirtualKeyCode[3] { VirtualKeyCode.VK_Q, VirtualKeyCode.VK_Z, VirtualKeyCode.VK_D } :
+            new VirtualKeyCode[3] { VirtualKeyCode.VK_A, VirtualKeyCode.VK_W, VirtualKeyCode.VK_D };
+ 
+        public static VirtualKeyCode[] KeyCodesToPress
+        {
+            get
+            {
+                try
+                {
+                    if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "CustomButtonSequence"))
+                    {
+                        var split = ConfigurationManager.AppSettings["CustomButtonSequence"].Trim().Split(',');
+                        VirtualKeyCode[] intermediaryCodesToPress = new VirtualKeyCode[3];
+
+                        if (split.Length == 3)
+                        {
+                            for (int i = 0; i < split.Length; i++)
+                            {
+                                var value = -1;
+                                if (int.TryParse(split[i], out value))
+                                {
+                                    intermediaryCodesToPress[i] = (VirtualKeyCode)value;
+                                }
+                                else
+                                {
+                                    return _KeyCodesToPress;
+                                }
+                            }
+
+                            _KeyCodesToPress = intermediaryCodesToPress;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(
+                        string.Format(
+                            "Wrong configuration for Key Codes: [value={0}]. Using {1}", 
+                            ConfigurationManager.AppSettings["CustomButtonSequence"],
+                            IsAzerty ? "QZD" : "AWD"));
+
+                    return _KeyCodesToPress;
+                }
+             
+                return _KeyCodesToPress;
             }
         }
         #endregion
