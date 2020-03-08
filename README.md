@@ -1,3 +1,6 @@
+# Reina version
+If you change window, program will stop quickly without crash.  
+
 # Auto Steamworks Exec
 Supported version: 404549
 
