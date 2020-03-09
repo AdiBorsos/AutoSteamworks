@@ -140,12 +140,12 @@ namespace AutoSteamApp
         private static string GetActiveWindowTitle()
         {
             const int nChars = 256;
-            StringBuilder Buff = new StringBuilder(nChars);
+            StringBuilder buff = new StringBuilder(nChars);
             IntPtr handle = WindowsApi.GetForegroundWindow();
 
-            if (WindowsApi.GetWindowText(handle, Buff, nChars) > 0)
+            if (WindowsApi.GetWindowText(handle, buff, nChars) > 0)
             {
-                return Buff.ToString();
+                return buff.ToString();
             }
             return null;
         }
