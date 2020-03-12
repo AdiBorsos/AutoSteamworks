@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -136,6 +137,24 @@ namespace AutoSteamApp
             }
         }
 
+        private static string GetActiveWindowTitle()
+        {
+            const int nChars = 256;
+            StringBuilder buff = new StringBuilder(nChars);
+            IntPtr handle = WindowsApi.GetForegroundWindow();
+
+            if (WindowsApi.GetWindowText(handle, buff, nChars) > 0)
+            {
+                return buff.ToString();
+            }
+            return null;
+        }
+
+        private static bool IsCurrnetActiveMHW()
+        {
+            return mhw.MainWindowTitle == GetActiveWindowTitle();
+        }
+
         private static void DoWork()
         {
             if (mhw != null && !ct.IsCancellationRequested)
@@ -176,6 +195,7 @@ namespace AutoSteamApp
                             byte after = before;
                             while (before == after && !ct.IsCancellationRequested)
                             {
+                                while (!IsCurrnetActiveMHW()) Logger.LogInfo("MHW not active.");
                                 PressKey(sim, item.Key);
 
                                 after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
