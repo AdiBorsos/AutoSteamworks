@@ -1,9 +1,5 @@
 # Auto Steamworks Exec
-Supported version: 406510 - BETA
-
-Known issues
-#The Fuel Detection is currently not working! Could not find the memory addresses for now
-#There is no checking when the game has to be restarted so the app will NOT close anymore when you run out of fuel 
+Supported version: 406510
 
 Functionality
 Reads game memory and finds the "expected" key pattern that the Steamworks needs and then Types that pattern.

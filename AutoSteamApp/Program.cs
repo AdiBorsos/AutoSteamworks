@@ -161,8 +161,7 @@ namespace AutoSteamApp
             {
                 InputSimulator sim = new InputSimulator();
 
-                // TODO - Enable this when pointers are available
-                // SaveData sd = new SaveData(mhw, ct);
+                SaveData sd = new SaveData(mhw, ct);
 
                 ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
 
@@ -228,18 +227,17 @@ namespace AutoSteamApp
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
-                                // TODO - uncomment this when updating save data pointers
-                                // if (sd.NaturalFuel + sd.StoredFuel < 10)
-                                // {
-                                //     Logger.LogInfo("No more fuel, stopping bot.");
-                                //     shouldStop = true;
-                                //     break;
-                                // }
-                                // 
-                                // if (sd.SteamGauge == 0)
-                                // {
+                                if (sd.NaturalFuel + sd.StoredFuel < 10)
+                                {
+                                    Logger.LogInfo("No more fuel, stopping bot.");
+                                    shouldStop = true;
+                                    break;
+                                }
+
+                                if (sd.SteamGauge == 0)
+                                {
                                     PressKey(sim, VirtualKeyCode.SPACE);
-                                // }
+                                }
                             }
 
                             if (shouldStop)
