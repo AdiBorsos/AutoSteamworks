@@ -1,5 +1,5 @@
 # Auto Steamworks Exec
-Supported version: 404549
+Supported version: 406510
 
 Functionality
 Reads game memory and finds the "expected" key pattern that the Steamworks needs and then Types that pattern.
