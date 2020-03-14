@@ -160,7 +160,7 @@ namespace AutoSteamApp
             if (mhw != null && !ct.IsCancellationRequested)
             {
                 InputSimulator sim = new InputSimulator();
-                SaveData sd = new SaveData(mhw, ct);
+                // SaveData sd = new SaveData(mhw, ct);
 
                 ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
 
@@ -171,7 +171,7 @@ namespace AutoSteamApp
 
                 while (!shouldStop && !ct.IsCancellationRequested)
                 {
-                    Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
+                    // Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
                     // value of the offset address
                     var ordered = ExtractCorrectSequence(mhw, offset_Address);
@@ -226,17 +226,17 @@ namespace AutoSteamApp
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
-                                if (sd.NaturalFuel + sd.StoredFuel < 10)
-                                {
-                                    Logger.LogInfo("No more fuel, stopping bot.");
-                                    shouldStop = true;
-                                    break;
-                                }
-
-                                if (sd.SteamGauge == 0)
-                                {
+                                // if (sd.NaturalFuel + sd.StoredFuel < 10)
+                                // {
+                                //     Logger.LogInfo("No more fuel, stopping bot.");
+                                //     shouldStop = true;
+                                //     break;
+                                // }
+                                // 
+                                // if (sd.SteamGauge == 0)
+                                // {
                                     PressKey(sim, VirtualKeyCode.SPACE);
-                                }
+                                // }
                             }
 
                             if (shouldStop)
