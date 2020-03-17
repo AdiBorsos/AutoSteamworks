@@ -54,6 +54,10 @@
       <HintPath>..\packages\GregsStack.InputSimulatorStandard.1.1.1\lib\netstandard2.0\GregsStack.InputSimulatorStandard.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Keyboard, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Keyboard.dll</HintPath>
+    </Reference>
     <Reference Include="KeystrokeAPI, Version=1.0.6.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\KeystrokeAPI.1.0.6.4\lib\net46\KeystrokeAPI.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -65,6 +69,7 @@
     <Reference Include="System.Core">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>

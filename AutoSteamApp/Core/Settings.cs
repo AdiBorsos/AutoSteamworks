@@ -101,6 +101,22 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static bool _useBackgroundKeyPress = false;
+        public static bool UseBackgroundKeyPress
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "UseBackgroundKeyPress"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["UseBackgroundKeyPress"].Trim(), out _useBackgroundKeyPress) ?
+                        _useBackgroundKeyPress :
+                        (_useBackgroundKeyPress = false);
+                }
+
+                return _useBackgroundKeyPress;
+            }
+        }
+
         #region keycodes
         private static int _keyCodeStart = -1;
         public static int KeyCodeStart

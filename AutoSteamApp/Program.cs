@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using AutoSteamApp.Core;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
+using Keyboard;
 using Keystroke.API;
 
 namespace AutoSteamApp
@@ -196,7 +197,7 @@ namespace AutoSteamApp
                             byte after = before;
                             while (before == after && !ct.IsCancellationRequested)
                             {
-                                while (!IsCurrnetActiveMHW()) Logger.LogInfo("MHW not active.");
+                                //while (!IsCurrnetActiveMHW()) Logger.LogInfo("MHW not active.");
                                 PressKey(sim, item.Key);
 
                                 after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
@@ -317,16 +318,26 @@ namespace AutoSteamApp
         {
             Logger.LogInfo($"Pressing: {key}!");
 
-            if (delay)
+            if (Settings.UseBackgroundKeyPress)
             {
-                sim.Keyboard.KeyDown(key);
-                sim.Keyboard.Sleep(100);
-                sim.Keyboard.KeyUp(key);
+                mhw.WaitForInputIdle();
+                var keyMap = new Key((Messaging.VKeys)key);
 
-                return;
+                keyMap.PressBackground(mhw.MainWindowHandle);
             }
+            else
+            {
+                if (delay)
+                {
+                    sim.Keyboard.KeyDown(key);
+                    sim.Keyboard.Sleep(100);
+                    sim.Keyboard.KeyUp(key);
 
-            sim.Keyboard.KeyPress(key);
+                    return;
+                }
+
+                sim.Keyboard.KeyPress(key);
+            }
         }
 
         private static void HookKeyboardEvents()
