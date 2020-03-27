@@ -9,7 +9,6 @@ using System.Windows.Forms;
 using AutoSteamApp.Core;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
-using Keyboard;
 using Keystroke.API;
 
 namespace AutoSteamApp
@@ -320,10 +319,11 @@ namespace AutoSteamApp
 
             if (Settings.UseBackgroundKeyPress)
             {
-                mhw.WaitForInputIdle();
-                var keyMap = new Key((Messaging.VKeys)key);
+                Logger.LogInfo($"You cheeky bastard. This doesn't work yet ..Please switch the flag back.");
+                //mhw.WaitForInputIdle();
+                //var keyMap = new Key((Messaging.VKeys)key);
 
-                keyMap.PressBackground(mhw.MainWindowHandle);
+                //keyMap.PressBackground(mhw.MainWindowHandle);
             }
             else
             {
