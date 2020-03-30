@@ -150,6 +150,39 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static int _keyCodeStartNatural = -1;
+        public static int KeyCodeStartNatural
+        {
+            get
+            {
+                if (_keyCodeStartNatural != -1) { return _keyCodeStartNatural; }
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStartNatural"))
+                {
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStartNatural"].Trim(), out _keyCodeStartNatural))
+                    {
+                        try
+                        {
+                            KeyCode key = (KeyCode)_keyCodeStartNatural;
+
+                            return _keyCodeStartNatural;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Invalid number for 'StartNatural' keycode: [{_keyCodeStartNatural}]. Will use default (Insert) instead! Exception: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogError($"Invalid number for 'StartNatural' keycode: [{ConfigurationManager.AppSettings["keyCodeStartNatural"]}]. Will use default (1) instead!");
+                    }
+                }
+
+                return (_keyCodeStartNatural = 49);
+            }
+        }
+
+
         private static int _keyCodeStop = -1;
         public static int KeyCodeStop
         {

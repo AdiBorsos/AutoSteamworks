@@ -44,13 +44,23 @@ namespace AutoSteamApp
         private static CancellationTokenSource ct = new CancellationTokenSource();
         private static bool isRandomPath = false;
 
+        private static RunType _runType;
+
         static void Main(string[] args)
         {
             Console.Title = $"Currently built for version: ({Settings.SupportedGameVersion})";
 
             Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
 
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
+
+            Console.WriteLine($"Please select the type of run you want. When the run is finished, the app will close.");
+            Console.WriteLine($"--------------------------------------------------------------------------------------");
+            Console.WriteLine("");
+            Console.WriteLine($"For Consuming ALL the FUEL -> Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
+            Console.WriteLine($"For Consuming ONLY the NATURAL FUEL -> Press '{((KeyCode)Settings.KeyCodeStartNatural).ToString()}' to start typing");
+            Console.WriteLine("");            
+            Console.WriteLine($"--------------------------------------------------------------------------------------");
+
             Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
 
             HookKeyboardEvents();
@@ -227,9 +237,13 @@ namespace AutoSteamApp
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
-                                if (sd.NaturalFuel + sd.StoredFuel < 10)
+                                if (sd.NaturalFuel + (sd.StoredFuel * (int)_runType) < 10)
                                 {
-                                    Logger.LogInfo("No more fuel, stopping bot.");
+                                    Logger.LogInfo(
+                                        string.Format(
+                                            "No more {0}fuel, stopping bot.",
+                                            _runType == RunType.NaturalFuelOnly ? "Natural " : string.Empty));
+
                                     shouldStop = true;
                                     break;
                                 }
@@ -349,7 +363,15 @@ namespace AutoSteamApp
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStart)
                     {
                         shouldStart = true;
-                        Logger.LogInfo($"Captured Start!");
+                        _runType = RunType.Full;
+                        Logger.LogInfo($"Captured Start for consuming ALL the fuel!");
+                    }
+
+                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStartNatural)
+                    {
+                        shouldStart = true;
+                        _runType = RunType.NaturalFuelOnly;
+                        Logger.LogInfo($"Captured Start for consuming ONLY Natural Fuel!");
                     }
 
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
