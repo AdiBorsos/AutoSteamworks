@@ -42,39 +42,57 @@ namespace AutoSteamApp
 
         private static Process mhw;
         private static CancellationTokenSource ct = new CancellationTokenSource();
-        private static bool isRandomPath = false;
-
-        private static RunType _runType;
+        private static bool IsCorrectVersion = false;
+        private static bool IsSmartRun = false;
 
         static void Main(string[] args)
         {
-            Console.Title = $"Currently built for version: ({Settings.SupportedGameVersion})";
-
-            Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
-
-
-            Console.WriteLine($"Please select the type of run you want. When the run is finished, the app will close.");
-            Console.WriteLine($"--------------------------------------------------------------------------------------");
-            Console.WriteLine("");
-            Console.WriteLine($"For Consuming ALL the FUEL -> Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to start typing");
-            Console.WriteLine($"For Consuming ONLY the NATURAL FUEL -> Press '{((KeyCode)Settings.KeyCodeStartNatural).ToString()}' to start typing");
-            Console.WriteLine("");            
-            Console.WriteLine($"--------------------------------------------------------------------------------------");
-
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
+            WriteMenu();
 
             HookKeyboardEvents();
 
             Startup();
 
-            if (isRandomPath)
+            if (IsCorrectVersion)
             {
-                DoRandomWork();
+                DoWork(IsSmartRun);
             }
             else
             {
-                DoWork();
+                DoRandomWork();
             }
+        }
+
+        private static void WriteMenu()
+        {
+            Console.Title = $"Currently built for version: ({Settings.SupportedGameVersion})";
+            Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
+
+            Console.WriteLine(string.Empty);
+
+            Console.WriteLine(
+                string.Format(
+                    "Based on the current settings, this run will consume: {0} fuel. If this was not intended, please change AutoSteamApp.exe.config.",
+                    Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
+            Console.WriteLine(string.Empty);
+
+            WriteSeparator();
+            Console.WriteLine($"Please select the type of run you want. When the run is finished, the app will close.");
+
+            WriteSeparator();
+            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to ->");
+            Console.WriteLine($"        Run with 100% Accuracy (requires correct game version)");
+
+            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStartRandom).ToString()}' to ->");
+            Console.WriteLine($"        Do a RANDOM run. This method will give unpredictable results, there is no check for values.");
+            WriteSeparator();
+
+            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
+        }
+
+        private static void WriteSeparator()
+        {
+            Console.WriteLine($"--------------------------------------------------------------------------------------");
         }
 
         private static void Startup()
@@ -90,23 +108,33 @@ namespace AutoSteamApp
                 Thread.Sleep(1000);
             }
 
-            if (mhw != null &&
-                !mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
+            if (mhw != null)
             {
-                var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
-                Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
-
-                if (!Settings.UseRandomPatterns)
+                if (!mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
                 {
-                    Logger.LogError($"However, if you still want to use the application, please set UseRandomPatterns to TRUE in the AutoSteamApp.exe.config");
-                    Logger.LogError($"UseRandomPatterns to TRUE will push buttons randomly, which is still better than nothing.");
+                    IsCorrectVersion = false;
 
-                    mhw = null;
+                    var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
+                    Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
+
+                    if (IsSmartRun)
+                    {
+                        Logger.LogError($"However, if you still want to use the application, please trigger a Random Run from the menu.");
+                        Logger.LogError($"That will push buttons randomly, which is still better than nothing.");
+
+                        mhw = null;
+                    }
                 }
                 else
                 {
-                    Logger.LogError($"Version Not Supported and UseRandomPatters is ACTIVE - app will type randomly - to disable this see AutoSteamApp.exe.config!");
-                    isRandomPath = true;
+                    IsCorrectVersion = true;
+
+                    if (!IsSmartRun)
+                    {
+                        Logger.LogError($"Smart Random run selected.");
+                        
+                        return;
+                    }
                 }
             }
         }
@@ -118,22 +146,9 @@ namespace AutoSteamApp
                 InputSimulator sim = new InputSimulator();
                 while (!shouldStop && !ct.IsCancellationRequested)
                 {
-                    List<int> orderBytes = rndPatterns[rnd.Next(0, 5)];
+                    List<KeyValuePair<VirtualKeyCode, int>> orderBytes = GetRandomSequence();
 
-                    if (Settings.IsAzerty)
-                    {
-                        keyOrder[VirtualKeyCode.VK_Q] = orderBytes[0];   // Q
-                        keyOrder[VirtualKeyCode.VK_Z] = orderBytes[1];   // Z
-                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
-                    }
-                    else
-                    {
-                        keyOrder[VirtualKeyCode.VK_A] = orderBytes[0];   // A
-                        keyOrder[VirtualKeyCode.VK_W] = orderBytes[1];   // W
-                        keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
-                    }
-
-                    foreach (var item in keyOrder.OrderBy(x => x.Value).Take(3).ToList())
+                    foreach (var item in orderBytes)
                     {
                         PressKey(sim, item.Key, true);
                     }
@@ -147,6 +162,26 @@ namespace AutoSteamApp
             }
         }
 
+        private static List<KeyValuePair<VirtualKeyCode, int>> GetRandomSequence()
+        {
+            List<int> orderBytes = rndPatterns[rnd.Next(0, 5)];
+
+            if (Settings.IsAzerty)
+            {
+                keyOrder[VirtualKeyCode.VK_Q] = orderBytes[0];   // Q
+                keyOrder[VirtualKeyCode.VK_Z] = orderBytes[1];   // Z
+                keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
+            }
+            else
+            {
+                keyOrder[VirtualKeyCode.VK_A] = orderBytes[0];   // A
+                keyOrder[VirtualKeyCode.VK_W] = orderBytes[1];   // W
+                keyOrder[VirtualKeyCode.VK_D] = orderBytes[2];   // D
+            }
+
+            return keyOrder.OrderBy(x => x.Value).Take(3).ToList();
+        }
+
         private static string GetActiveWindowTitle()
         {
             const int nChars = 256;
@@ -157,15 +192,16 @@ namespace AutoSteamApp
             {
                 return buff.ToString();
             }
+
             return null;
         }
 
-        private static bool IsCurrnetActiveMHW()
+        private static bool IsCurrentActiveMHW()
         {
             return mhw.MainWindowTitle == GetActiveWindowTitle();
         }
 
-        private static void DoWork()
+        private static void DoWork(bool isSmartRun = true)
         {
             if (mhw != null && !ct.IsCancellationRequested)
             {
@@ -180,12 +216,19 @@ namespace AutoSteamApp
                 var offset_Address = pointerAddress + 0x350;
                 var offset_buttonPressState = offset_Address + 8;
 
+                var oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
+                var fuelPerRound = 10;
+
                 while (!shouldStop && !ct.IsCancellationRequested)
                 {
                     // Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
                     // value of the offset address
-                    var ordered = ExtractCorrectSequence(mhw, offset_Address);
+                    List<KeyValuePair<VirtualKeyCode, int>> ordered = 
+                        isSmartRun ? 
+                            ExtractCorrectSequence(mhw, offset_Address) : 
+                            GetRandomSequence();
+
                     if (ordered == null)
                     {
                         Logger.LogInfo("The Steamworks minigame is not started. Please enter the minigame and Press 'Space' so that you see the first letters on your screen.");
@@ -206,7 +249,6 @@ namespace AutoSteamApp
                             byte after = before;
                             while (before == after && !ct.IsCancellationRequested)
                             {
-                                //while (!IsCurrnetActiveMHW()) Logger.LogInfo("MHW not active.");
                                 PressKey(sim, item.Key);
 
                                 after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
@@ -216,9 +258,21 @@ namespace AutoSteamApp
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Trying to press button sequence: {ex.Message}");
+                            Logger.LogError($"Error trying to press button sequence -> {ex.Message}");
                         }
                     }
+
+                    // Small work around to avoid blocking when running x10 fuel per sequence
+                    if (oldFuelValue - sd.NaturalFuel - sd.StoredFuel == 100)
+                    {
+                        fuelPerRound = 100;
+                    }
+                    else
+                    {
+                        fuelPerRound = 10;
+                    }
+
+                    oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
 
                     if (shouldStop)
                     {
@@ -232,17 +286,17 @@ namespace AutoSteamApp
 
                         try
                         {
-                            PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip);
+                            PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip, true);
 
                             // no more fuel
                             if (currentState == (int)ButtonPressingState.EndOfGame)
                             {
-                                if (sd.NaturalFuel + (sd.StoredFuel * (int)_runType) < 10)
+                                if (sd.NaturalFuel + (sd.StoredFuel * (Settings.ShouldConsumeAllFuel ? 1 : 0)) < fuelPerRound)
                                 {
                                     Logger.LogInfo(
                                         string.Format(
                                             "No more {0}fuel, stopping bot.",
-                                            _runType == RunType.NaturalFuelOnly ? "Natural " : string.Empty));
+                                            Settings.ShouldConsumeAllFuel == false ? "Natural " : string.Empty));
 
                                     shouldStop = true;
                                     break;
@@ -250,7 +304,7 @@ namespace AutoSteamApp
 
                                 if (sd.SteamGauge == 0)
                                 {
-                                    PressKey(sim, VirtualKeyCode.SPACE);
+                                    PressKey(sim, VirtualKeyCode.SPACE, true);
                                 }
                             }
 
@@ -329,6 +383,11 @@ namespace AutoSteamApp
 
         private static void PressKey(InputSimulator sim, VirtualKeyCode key, bool delay = false)
         {
+            while (!IsCurrentActiveMHW())
+            {
+                Logger.LogInfo("MHW not active/focused. Waiting ...");
+            }
+
             Logger.LogInfo($"Pressing: {key}!");
 
             if (Settings.UseBackgroundKeyPress)
@@ -363,15 +422,17 @@ namespace AutoSteamApp
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStart)
                     {
                         shouldStart = true;
-                        _runType = RunType.Full;
-                        Logger.LogInfo($"Captured Start for consuming ALL the fuel!");
+                        IsSmartRun = true;
+
+                        Logger.LogInfo(string.Format("Captured Start for 100% accuracy run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
                     }
 
-                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStartNatural)
+                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStartRandom)
                     {
                         shouldStart = true;
-                        _runType = RunType.NaturalFuelOnly;
-                        Logger.LogInfo($"Captured Start for consuming ONLY Natural Fuel!");
+                        IsSmartRun = false;
+
+                        Logger.LogInfo(string.Format("Captured Start for RANDOM run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
                     }
 
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
@@ -381,7 +442,7 @@ namespace AutoSteamApp
                         shouldStart = true;
                         shouldStop = true;
 
-                        Logger.LogInfo($"Captured Escape!");
+                        Logger.LogInfo($"Captured Stop execution. Exiting..!");
 
                         Application.Exit();
                     }

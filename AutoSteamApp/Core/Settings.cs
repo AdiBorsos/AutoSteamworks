@@ -17,22 +17,6 @@ namespace AutoSteamApp.Core
         public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
         #endregion
 
-        private static uint _DelayBetweenKeys = 500;
-        public static uint DelayBetweenKeys
-        {
-            get
-            {
-                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenKeys"))
-                {
-                    return uint.TryParse(ConfigurationManager.AppSettings["DelayBetweenKeys"].Trim(), out _DelayBetweenKeys) ?
-                        _DelayBetweenKeys :
-                        (_DelayBetweenKeys = 500);
-                }
-
-                return _DelayBetweenKeys;
-            }
-        }
-
         private static uint _DelayBetweenCombo = 500;
         public static uint DelayBetweenCombo
         {
@@ -85,22 +69,6 @@ namespace AutoSteamApp.Core
             }
         }
 
-        private static bool _useRandomPatters = false;
-        public static bool UseRandomPatterns
-        {
-            get
-            {
-                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "UseRandomPattern"))
-                {
-                    return bool.TryParse(ConfigurationManager.AppSettings["UseRandomPattern"].Trim(), out _useRandomPatters) ?
-                        _useRandomPatters :
-                        (_useRandomPatters = false);
-                }
-
-                return _useRandomPatters;
-            }
-        }
-
         private static bool _useBackgroundKeyPress = false;
         public static bool UseBackgroundKeyPress
         {
@@ -117,7 +85,24 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static bool _ShouldConsumeAllFuel = false;
+        public static bool ShouldConsumeAllFuel
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "ShouldConsumeAllFuel"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["ShouldConsumeAllFuel"].Trim(), out _ShouldConsumeAllFuel) ?
+                        _ShouldConsumeAllFuel :
+                        (_ShouldConsumeAllFuel = false);
+                }
+
+                return _ShouldConsumeAllFuel;
+            }
+        }
+
         #region keycodes
+
         private static int _keyCodeStart = -1;
         public static int KeyCodeStart
         {
@@ -150,37 +135,38 @@ namespace AutoSteamApp.Core
             }
         }
 
-        private static int _keyCodeStartNatural = -1;
-        public static int KeyCodeStartNatural
+        private static int _keyCodeStartRandom = -1;
+        public static int KeyCodeStartRandom
         {
             get
             {
-                if (_keyCodeStartNatural != -1) { return _keyCodeStartNatural; }
+                if (_keyCodeStartRandom != -1) { return _keyCodeStartRandom; }
 
-                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStartNatural"))
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCodeStartRandom"))
                 {
-                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStartNatural"].Trim(), out _keyCodeStartNatural))
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCodeStartRandom"].Trim(), out _keyCodeStartRandom))
                     {
                         try
                         {
-                            KeyCode key = (KeyCode)_keyCodeStartNatural;
+                            KeyCode key = (KeyCode)_keyCodeStartRandom;
 
-                            return _keyCodeStartNatural;
+                            return _keyCodeStartRandom;
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Invalid number for 'StartNatural' keycode: [{_keyCodeStartNatural}]. Will use default (Insert) instead! Exception: {ex.Message}");
+                            Logger.LogError($"Invalid number for 'StartRandom' keycode: [{_keyCodeStartRandom}]. Will use default (F2) instead! Exception: {ex.Message}");
                         }
                     }
                     else
                     {
-                        Logger.LogError($"Invalid number for 'StartNatural' keycode: [{ConfigurationManager.AppSettings["keyCodeStartNatural"]}]. Will use default (1) instead!");
+                        Logger.LogError($"Invalid number for 'StartRandom' keycode: [{ConfigurationManager.AppSettings["keyCodeStartNatural"]}]. Will use default (F2) instead!");
                     }
                 }
 
-                return (_keyCodeStartNatural = 49);
+                return (_keyCodeStartRandom = 112);
             }
         }
+
 
 
         private static int _keyCodeStop = -1;
