@@ -8,6 +8,7 @@ Restarts automatically when the Steamworks game is over IF if you have enough fu
 Stops automatically if you are out of fuel or you press the stop button.
 Random Pattern clicking if the app is out of date - checks game version against internal version - This provides random results of course, but better than nothing until app is updated.
 
+Introduced a menu to chose what type of run you want.
 **New** Possibility to choose:
 	- New **ShouldConsumeAllFuel** added to AutoSteamApp.exe.config option was added to setup using ALL the fuel or Only the Natural Fuel
 	- Default value is **true**
@@ -32,13 +33,13 @@ How to use it
 
 Configurable Parts - AutoSteamApp.exe.config
 1. Combo delay - time to wait between 3-key press sequence - useful to sync with animations (larger value might result in better results)
-2. ShouldConsumeAllFuel - set to **true** if you want only the Natural Fuel to be used. Otherwise set to false - default value
+2. ShouldConsumeAllFuel - set this to **false** if you want only the Natural Fuel to be used. Otherwise set to true - default value **true**
 3. Enable/Disable logging - keep it disabled unless something looks fishy or malfunctions (or you wanna sniff the logs)
 4. Change between AZERTY(QZD) or QUERTY(AWD) - based on your keyboard, pick one - default is QUERTY
-5. KeyCodeStart - allows to bind other key for Starting the App in 100% accuracy mode
-6. KeyCodeStartRandom - allows to bind other key for Starting the App in Random mode
-7. KeyCodeStop - allows to bind other key for Stopping the App
-8. KeyCutsceneSkip - allows to bind other key for Cutscene/Animation skip - must match the controls set in game at System > Options > Controls > Keyboard Settings > Menu Control > "Use or Register Loadout / Cancel Animation"
+5. KeyCodeStart - allows to bind other key for Starting the App in 100% accuracy mode - default is "36" - 'Home' button
+6. KeyCodeStartRandom - allows to bind other key for Starting the App in Random mode - default is "112" - 'F1' button
+7. KeyCodeStop - allows to bind other key for Stopping the App - default is "35" - 'End' button
+8. KeyCutsceneSkip - allows to bind other key for Cutscene/Animation skip - must match the controls set in game at System > Options > Controls > Keyboard Settings > Menu Control > "Use or Register Loadout / Cancel Animation" - default is "88" - 'X' button
 
 Open Source code for you to make it better if you want: [Code might not be stable all the time] https://github.com/AdiBorsos/AutoSteamworks
 
