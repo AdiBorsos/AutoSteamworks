@@ -9,10 +9,14 @@ Stops automatically if you are out of fuel or you press the stop button.
 Random Pattern clicking if the app is out of date - checks game version against internal version - This provides random results of course, but better than nothing until app is updated.
 
 Introduced a menu to chose what type of run you want.
-**New** Possibility to choose:
-	- New **ShouldConsumeAllFuel** added to AutoSteamApp.exe.config option was added to setup using ALL the fuel or Only the Natural Fuel
+
+[*New*] 
+Possibility to choose:
+	- Configurable value **ShouldConsumeAllFuel** added to AutoSteamApp.exe.config option was added to setup using ALL the fuel or Only the Natural Fuel
 	- Default value is **true**
-**New** Do a smart RANDOM run:
+	
+[*New*] 
+Do a smart RANDOM run:
 	- New functionality to do a RANDOM run - this will give random results, as no memory reading is happening. 
 	- The other functions of the application will still work (fuel checking, automatic stop and restart etc). 
 	- Random Run will be available even if the app is up to date.
