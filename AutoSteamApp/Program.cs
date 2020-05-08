@@ -13,14 +13,74 @@ using Keystroke.API;
 
 namespace AutoSteamApp
 {
+
     class Program
     {
+
+        #region Fields
+
+        #region Properties
+
+        /// <summary>
+        /// The name of the process. Ideally this should be MonsterHunterWorld as this is likely never to change.
+        /// </summary>
         private const string ProcessName = "MonsterHunterWorld";
+
+        #endregion
+
+        #region Flags
+
+        /// <summary>
+        /// Flag used to indicate if the program has been signalled to stop.
+        /// </summary>
         private static volatile bool shouldStop = false;
+
+        /// <summary>
+        /// Flag used to indicate if the Keystrokes have been signalled to start
+        /// </summary>
         private static volatile bool shouldStart = false;
 
+        /// <summary>
+        /// Flag used to indicate that the correct version on the game is running
+        /// </summary>
+        private static bool IsCorrectVersion = false;
+
+        /// <summary>
+        /// Flag used to indicate whether or
+        /// </summary>
+        private static bool IsSmartRun = false;
+        #endregion
+
+        #region Object References
+
+        /// <summary>
+        /// Random object used to when random mode is selected.
+        /// </summary>
         private static Random rnd = new Random();
+
+        /// <summary>
+        /// Keystroke object used to abstract keyboard hooks.
+        /// </summary>
         private static KeystrokeAPI api = new KeystrokeAPI();
+
+        /// <summary>
+        /// The actual Monster Hunter process.
+        /// </summary>
+        private static Process mhw;
+
+        /// <summary>
+        /// Cancellation token used to signal when to stop reading process memory etc.
+        /// </summary>
+        private static CancellationTokenSource ct = new CancellationTokenSource();
+
+        #endregion
+
+        #region Read-only Code Dictionaries
+
+        /// <summary>
+        /// Still learning what this does
+        /// TODO: update this summary
+        /// </summary>
         private static readonly Dictionary<VirtualKeyCode, int> keyOrder = new Dictionary<VirtualKeyCode, int>()
         {
             { VirtualKeyCode.VK_A, 999 },
@@ -30,6 +90,10 @@ namespace AutoSteamApp
             { VirtualKeyCode.VK_Z, 999 },
         };
 
+        /// <summary>
+        /// Still learning what this does
+        /// TODO: update this summary
+        /// </summary>
         private static readonly Dictionary<int, List<int>> rndPatterns = new Dictionary<int, List<int>>()
         {
             { 0, new List<int> { 0, 1, 2 } },
@@ -40,17 +104,23 @@ namespace AutoSteamApp
             { 5, new List<int> { 1, 2, 0 } }
         };
 
-        private static Process mhw;
-        private static CancellationTokenSource ct = new CancellationTokenSource();
-        private static bool IsCorrectVersion = false;
-        private static bool IsSmartRun = false;
+        #endregion
+
+        #endregion
+
+        #region Methods
 
         static void Main(string[] args)
         {
+
+            // Display the usage instructions to the user
             WriteMenu();
 
+            // Hook into keyboard events
             HookKeyboardEvents();
 
+            // Grabs the MHW process and waits for the should start flag to signal
+            // TODO: Make event based instead of while-loop based (especially since we are able to listen to keyboard hooks)
             Startup();
 
             if (IsCorrectVersion)
@@ -61,6 +131,7 @@ namespace AutoSteamApp
             {
                 DoRandomWork();
             }
+
         }
 
         private static void WriteMenu()
@@ -132,7 +203,7 @@ namespace AutoSteamApp
                     if (!IsSmartRun)
                     {
                         Logger.LogError($"Smart Random run selected.");
-                        
+
                         return;
                     }
                 }
@@ -224,9 +295,9 @@ namespace AutoSteamApp
                     // Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
 
                     // value of the offset address
-                    List<KeyValuePair<VirtualKeyCode, int>> ordered = 
-                        isSmartRun ? 
-                            ExtractCorrectSequence(mhw, offset_Address) : 
+                    List<KeyValuePair<VirtualKeyCode, int>> ordered =
+                        isSmartRun ?
+                            ExtractCorrectSequence(mhw, offset_Address) :
                             GetRandomSequence();
 
                     if (ordered == null)
@@ -468,5 +539,9 @@ namespace AutoSteamApp
 
             return null;
         }
+
+        #endregion
+
     }
+
 }
