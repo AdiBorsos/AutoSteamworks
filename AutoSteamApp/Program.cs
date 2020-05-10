@@ -117,6 +117,7 @@ namespace AutoSteamApp
             WriteMenu();
 
             // Hook into keyboard events
+            // TODO: Is it possible that we don't need to listen to keyboard events and simply read from command line?
             HookKeyboardEvents();
 
             // Grabs the MHW process and waits for the should start flag to signal
@@ -484,41 +485,59 @@ namespace AutoSteamApp
             }
         }
 
+        /// <summary>
+        /// Creates a windows form loop which listens to all keyboard events in a separate thread
+        /// </summary>
         private static void HookKeyboardEvents()
         {
+            // Create a new thread (This is because the Keystroke api needs to start a windows message loop, which would halt our program)
             Task.Run(() =>
             {
+                // Create a hook delegate which receives a KeyPressed character as arguments
                 api.CreateKeyboardHook((character) =>
                 {
+                    // If the character is the same as the smart start character defined in the config file
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStart)
                     {
+                        // Set the start flag
                         shouldStart = true;
+                        // Set the smart run flag
                         IsSmartRun = true;
 
                         Logger.LogInfo(string.Format("Captured Start for 100% accuracy run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
                     }
 
+                    // If the character is the same as the random start character defined in the config file
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStartRandom)
                     {
+                        // Set the start flag
                         shouldStart = true;
+                        // Disable the smart run flag
                         IsSmartRun = false;
 
                         Logger.LogInfo(string.Format("Captured Start for RANDOM run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
                     }
 
+                    // If the character is the same as the stop character defined in the config file
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
                     {
+                        // Signalt the cancellation token to halt
                         ct.Cancel();
 
+                        // Disable toe start flag
                         shouldStart = true;
+
+                        // Set the stop flag
                         shouldStop = true;
 
                         Logger.LogInfo($"Captured Stop execution. Exiting..!");
 
+                        // Kill this thread (stop listening to keyboard events)
                         Application.Exit();
                     }
                 });
 
+                // Start the windows form loop
                 Application.Run();
             });
         }
