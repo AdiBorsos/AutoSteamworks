@@ -565,21 +565,26 @@ namespace AutoSteamApp
             });
         }
 
+        /// <summary>
+        /// Returns the process which contains the process name as defined in the fields
+        /// </summary>
+        /// <returns></returns>
         private static Process GetMHW()
         {
-            var processes = Process.GetProcesses();
+            
+            //Retrieve all processes with defined process name
+            var processes = Process.GetProcessesByName(ProcessName);
             try
             {
+                // Try to return the first one
                 return processes.FirstOrDefault(p => p != null && p.ProcessName.Equals(ProcessName) && !p.HasExited);
             }
             catch
             {
-                Logger.LogError($"Error trying to find '{ProcessName}' process.");
-            }
-
-            Logger.LogError($"Looks like the game is not running. It should...");
-
-            return null;
+                // Log if not found
+                Logger.LogError($"Looks like the game is not running. It should...");
+                return null;
+            }        
         }
 
         #endregion
