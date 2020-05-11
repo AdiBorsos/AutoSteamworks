@@ -124,6 +124,7 @@ namespace AutoSteamApp
             // TODO: Make event based instead of while-loop based (especially since we are able to listen to keyboard hooks)
             Startup();
 
+            // TOD: Can we abstract this to a single function call using the flag?
             if (IsCorrectVersion)
             {
                 DoWork(IsSmartRun);
@@ -167,28 +168,44 @@ namespace AutoSteamApp
             Console.WriteLine($"--------------------------------------------------------------------------------------");
         }
 
+        /// <summary>
+        /// Checks the current MHW proccess version and sets flags according to whether or not the current version is supported.
+        /// </summary>
         private static void Startup()
         {
+            // Attempt to get the mhw process until the cancellation request is sent
             while (mhw == null && !ct.IsCancellationRequested)
             {
                 mhw = GetMHW();
+
+                // Attempt again in a second
                 Thread.Sleep(1000);
             }
 
+            // Wait until the keyboard hook alters the start flag
             while (!shouldStart && !ct.IsCancellationRequested)
             {
                 Thread.Sleep(1000);
             }
 
+            // This should never be null at this point.
+            //TODO: Figure out the reason it may be null at this point
             if (mhw != null)
             {
+
+                // MHW Proces Window Title : "MONSTER HUNTER: WORLD(<version>)"
                 if (!mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
                 {
+
+                    // Disable the is correct version flag
                     IsCorrectVersion = false;
 
+                    // Parse the current version from the process window title.
                     var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
+
                     Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
 
+                    // If the smart run option is enabled, set the mhw process to null
                     if (IsSmartRun)
                     {
                         Logger.LogError($"However, if you still want to use the application, please trigger a Random Run from the menu.");
@@ -197,14 +214,20 @@ namespace AutoSteamApp
                         mhw = null;
                     }
                 }
+
+                // Otherwise the version of mhw is supported
                 else
                 {
+
+                    // Set the correct version flag
                     IsCorrectVersion = true;
 
+                    // IF smart run has not been selected, log it.
                     if (!IsSmartRun)
                     {
                         Logger.LogError($"Smart Random run selected.");
 
+                        //TODO: Superfluous return statement
                         return;
                     }
                 }
