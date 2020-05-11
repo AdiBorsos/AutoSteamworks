@@ -226,9 +226,6 @@ namespace AutoSteamApp
                     if (!IsSmartRun)
                     {
                         Logger.LogError($"Smart Random run selected.");
-
-                        //TODO: Superfluous return statement
-                        return;
                     }
                 }
             }
