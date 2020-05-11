@@ -8,7 +8,7 @@ namespace AutoSteamApp.Core
     {
 
         /// <summary>
-        /// Read a <typeparamref name="T"/> of memory from the proccess at the specified address.
+        /// Reads a struct <typeparamref name="T"/> of memory from a proccess at a specified address.
         /// </summary>
         /// <typeparam name="T">What type of struct to read.</typeparam>
         /// <param name="process">What process to read from.</param>
@@ -16,7 +16,7 @@ namespace AutoSteamApp.Core
         /// <returns>The desired struct representation of the the address read</returns>
         public static T Read<T>(Process process, ulong address) where T : struct
         {
-            // Get the absolute base type of the struct to read
+            // Get the underlying base type of the struct to read
             Type outputType = typeof(T).IsEnum ? Enum.GetUnderlyingType(typeof(T)) : typeof(T);
 
             // Initialize an array with size corresponding to the size of the desired T type
@@ -67,8 +67,6 @@ namespace AutoSteamApp.Core
             // Return the read bytes
             return bytes;
         }
-
-        #endregion
 
     }
 }
