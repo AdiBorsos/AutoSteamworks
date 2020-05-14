@@ -5,10 +5,20 @@ using AutoSteamApp.Core;
 
 namespace AutoSteamApp
 {
-    public class SaveData
+    public class OldSaveData
     {
+
+        /// <summary>
+        /// The MHW Process
+        /// </summary>
         private Process _mhw = null;
+
+        /// <summary>
+        /// The Start address to the Save Data of a player. Offset_to_Base + Offset_to_SaveData
+        /// </summary>
         private ulong StartAddress = Settings.Off_Base + Settings.Off_SaveData;
+
+        // Pointer to where the 
         private ulong offset1;
         private ulong offset2;
 
@@ -17,8 +27,10 @@ namespace AutoSteamApp
         public short SteamGauge => MemoryHelper.Read<short>(_mhw, offset2 + 0x102FE4);
         public byte BonusTime => MemoryHelper.Read<byte>(_mhw, offset2 + 0x102FE6);
 
-        public SaveData(Process mhw, CancellationTokenSource cts)
+
+        public OldSaveData(Process mhw, CancellationTokenSource cts)
         {
+            // Set the proper process for the save data object
             _mhw = mhw;
 
             PlayerData.Load(_mhw, cts);
@@ -30,12 +42,18 @@ namespace AutoSteamApp
 
     public static class PlayerData
     {
+
+        /// <summary>
+        /// Address of the user's save data (slot independent). This is the offset of the base game plus the offset to the save data
+        /// </summary>
         private static ulong StartAddress = Settings.Off_Base + Settings.Off_SaveData;
 
         public static int CurrentSlot { get; private set; } = -1;
 
         public static void Load(Process mhw, CancellationTokenSource cts)
         {
+
+            // Get the pointer found 0xA8 bytes into the start address
             var offset1 = MemoryHelper.Read<ulong>(mhw, StartAddress) + 0xA8;
 
             int[] slotPlayTimes = new int[3] { -1, -1, -1 };
