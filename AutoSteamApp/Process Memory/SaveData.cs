@@ -11,7 +11,6 @@ namespace AutoSteamApp.Process_Memory
 {
     public class SaveData
     {
-
         /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
         /// </summary>
@@ -22,6 +21,43 @@ namespace AutoSteamApp.Process_Memory
         /// </summary>
         CancellationTokenSource CancellationToken;
 
+        /// <summary>
+        /// The pointer to the steamworks save data.
+        /// </summary>
+        ulong SteamworksSaveDataPointer;
+
+        /// <summary>
+        /// The integer value of the amount of natural fuel the player has left.
+        /// </summary>
+        public int NaturalFuelLeft
+        {
+            get
+            {
+                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToNaturalFuel);
+            }
+        }
+
+        /// <summary>
+        /// The integer value of the amount of stored fuel the player has left.
+        /// </summary>
+        public int StoredFuel
+        {
+            get
+            {
+                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToStoredFuel);
+            }
+        }
+
+        /// <summary>
+        /// The short value showing how much 
+        /// </summary>
+        public short SteamGauge
+        {
+            get
+            {
+                return MemoryHelper.Read<short>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToSteamGauge);
+            }
+        }
 
         #region Constructor
 
@@ -47,24 +83,27 @@ namespace AutoSteamApp.Process_Memory
         /// </summary>
         public void LoadData()
         {
-            /* First we need to find out which save slot the player is currently using
-             *  We cleverly check this by looking for the "Play Time" value of each slot after a certain time.
-             * The slot whose play time increased is the slot we are looking for. This may take a few tries as
-             */
-
-            //First we find the address pointed to by the save data pointer
+            // Load the address of the save data
             ulong SaveDataAddress = MemoryHelper.Read<ulong>(MHWProcess, MHWMemoryValues.SaveDataPointer);
-            int slotNumber = GetSlotNumber(SaveDataAddress);
-            
-
+            // The slot data is an offset from the save data
+            ulong SlotDataPointer = SlotDataPointer = SaveDataAddress + MHWMemoryValues.OffsetToSlotDataPointer;
+            // Get which slot number we are using so we know where to find the current steamworks values
+            int slotNumber = GetSlotNumber(SlotDataPointer);
+            // The steamworks save data pointer is found in the slot data so first go there.
+            SteamworksSaveDataPointer = MemoryHelper.Read<ulong>(MHWProcess, SlotDataPointer);
+            // Then offset to the proper slot (slot no. * slot size)
+            SteamworksSaveDataPointer += ((ulong)slotNumber * MHWMemoryValues.SlotSize);
         }
 
-
-        int GetSlotNumber(ulong SaveDataAddress)
+        /// <summary>
+        /// Iterates over the different player slots in the save data.
+        /// Returns the slot which has the playtime increase after some time.
+        /// </summary>
+        /// <param name="SlotDataPointer">The pointer to the slot data address.</param>
+        /// <returns>The slot number the player is currently using.</returns>
+        int GetSlotNumber(ulong SlotDataPointer)
         {
-            // We know that the pointer to the slot data is X bytes after the save data pointer value
-            ulong SlotDataPointer = SaveDataAddress + MHWMemoryValues.OffsetToSlotDataPointer;
-
+            // We know that the pointer to the slot data is X bytes after the save data pointer value          
             int[] SlotPlayTimes = new int[3] { -1, -1, -1 };
 
             //We loop through each slot to set the initial playtime. 
@@ -86,7 +125,8 @@ namespace AutoSteamApp.Process_Memory
             // I have explicitly duplicated the above code to make it more clear to a reader, rather than
             // Doing it in a more "programmy" way.
             int retVal = -1;
-            while (!CancellationToken.IsCancellationRequested)
+            bool found = false;
+            while (!found && !CancellationToken.IsCancellationRequested)
             {
                 // Repeat the same as above until one of the slots changes or cancellation is requested. 
                 // This indicates that the changed slot is being played currently.
@@ -106,12 +146,12 @@ namespace AutoSteamApp.Process_Memory
                     if (MemoryHelper.Read<int>(MHWProcess, PlayTimePointer) != SlotPlayTimes[slotNumber])
                     {
                         retVal = slotNumber;
+                        found = true;
                         break;
                     }
                 }
             }
             return retVal;
-            
         }
 
         #endregion
