@@ -9,6 +9,15 @@ namespace AutoSteamApp.Core
     public static class MHWMemoryValues
     {
 
+        #region Process Version
+
+        /// <summary>
+        /// The supported MHW:IB version in string format
+        /// </summary>
+        public static string SupportedGameVersion = "410014";
+
+        #endregion
+
         #region Offsets
 
         /// <summary>
@@ -40,17 +49,17 @@ namespace AutoSteamApp.Core
         /// <summary>
         /// The offset from the Slot Data Pointer value to the stored fuel level of the player.
         /// </summary>
-        public const ulong OffsetToStoredFuel = 0x102FDC;
+        public const ulong OffsetToStoredFuel = 0x102FE0;
 
         /// <summary>
         /// The offset from the Slot Data Pointer value to the steam gauge of the player.
         /// </summary>
-        public const ulong OffsetToSteamGauge = 0x102FDC;
+        public const ulong OffsetToSteamGauge = 0x102FE4;
 
         /// <summary>
         /// The offset from the Slot Data Pointer value to the remaining bonus time in the steamworks of the player.
         /// </summary>
-        public const ulong OffsetToSteamBonusTime = 0x102FDC;
+        public const ulong OffsetToSteamBonusTime = 0x102FE6;
 
         /// <summary>
         /// The offset into each save slot data for the current play time.

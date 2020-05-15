@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoSteamApp.Core;
+using AutoSteamApp.Process_Memory;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
 using Keystroke.API;
@@ -28,28 +29,6 @@ namespace AutoSteamApp
 
         #endregion
 
-        #region Flags
-
-        /// <summary>
-        /// Flag used to indicate if the program has been signalled to stop.
-        /// </summary>
-        private static volatile bool shouldStop = false;
-
-        /// <summary>
-        /// Flag used to indicate if the Keystrokes have been signalled to start
-        /// </summary>
-        private static volatile bool shouldStart = false;
-
-        /// <summary>
-        /// Flag used to indicate that the correct version on the game is running
-        /// </summary>
-        private static bool IsCorrectVersion = false;
-
-        /// <summary>
-        /// Flag used to indicate whether or
-        /// </summary>
-        private static bool IsSmartRun = false;
-        #endregion
 
         #region Object References
 
@@ -113,124 +92,9 @@ namespace AutoSteamApp
         static void Main(string[] args)
         {
 
-            // Display the usage instructions to the user
-            WriteMenu();
-
-            // Hook into keyboard events
-            // TODO: Is it possible that we don't need to listen to keyboard events and simply read from command line?
-            HookKeyboardEvents();
-
-            // Grabs the MHW process and waits for the should start flag to signal
-            // TODO: Make event based instead of while-loop based (especially since we are able to listen to keyboard hooks)
-            Startup();
-
-            // TOD: Can we abstract this to a single function call using the flag?
-            if (IsCorrectVersion)
-            {
-                DoWork(IsSmartRun);
-            }
-            else
-            {
-                DoRandomWork();
-            }
-
         }
 
-        private static void WriteMenu()
-        {
-            Console.Title = $"Currently built for version: ({Settings.SupportedGameVersion})";
-            Console.WriteLine($"Currently built for version: {Settings.SupportedGameVersion}");
-
-            Console.WriteLine(string.Empty);
-
-            Console.WriteLine(
-                string.Format(
-                    "Based on the current settings, this run will consume: {0} fuel. If this was not intended, please change AutoSteamApp.exe.config.",
-                    Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
-            Console.WriteLine(string.Empty);
-
-            WriteSeparator();
-            Console.WriteLine($"Please select the type of run you want. When the run is finished, the app will close.");
-
-            WriteSeparator();
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to ->");
-            Console.WriteLine($"        Run with 100% Accuracy (requires correct game version)");
-
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStartRandom).ToString()}' to ->");
-            Console.WriteLine($"        Do a RANDOM run. This method will give unpredictable results, there is no check for values.");
-            WriteSeparator();
-
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
-        }
-
-        private static void WriteSeparator()
-        {
-            Console.WriteLine($"--------------------------------------------------------------------------------------");
-        }
-
-        /// <summary>
-        /// Checks the current MHW proccess version and sets flags according to whether or not the current version is supported.
-        /// </summary>
-        private static void Startup()
-        {
-            // Attempt to get the mhw process until the cancellation request is sent
-            while (mhw == null && !ct.IsCancellationRequested)
-            {
-                mhw = GetMHW();
-
-                // Attempt again in a second
-                Thread.Sleep(1000);
-            }
-
-            // Wait until the keyboard hook alters the start flag
-            while (!shouldStart && !ct.IsCancellationRequested)
-            {
-                Thread.Sleep(1000);
-            }
-
-            // This should never be null at this point.
-            //TODO: Figure out the reason it may be null at this point
-            if (mhw != null)
-            {
-
-                // MHW Proces Window Title : "MONSTER HUNTER: WORLD(<version>)"
-                if (!mhw.MainWindowTitle.Contains(Settings.SupportedGameVersion))
-                {
-
-                    // Disable the is correct version flag
-                    IsCorrectVersion = false;
-
-                    // Parse the current version from the process window title.
-                    var currentVersion = int.Parse(mhw.MainWindowTitle.Split('(')[1].Replace(")", ""));
-
-                    Logger.LogError($"Currently built for version: {Settings.SupportedGameVersion}. This game version ({currentVersion}) is not supported YET!");
-
-                    // If the smart run option is enabled, set the mhw process to null
-                    if (IsSmartRun)
-                    {
-                        Logger.LogError($"However, if you still want to use the application, please trigger a Random Run from the menu.");
-                        Logger.LogError($"That will push buttons randomly, which is still better than nothing.");
-
-                        mhw = null;
-                    }
-                }
-
-                // Otherwise the version of mhw is supported
-                else
-                {
-
-                    // Set the correct version flag
-                    IsCorrectVersion = true;
-
-                    // IF smart run has not been selected, log it.
-                    if (!IsSmartRun)
-                    {
-                        Logger.LogError($"Smart Random run selected.");
-                    }
-                }
-            }
-        }
-
+      
         private static void DoRandomWork()
         {
             if (mhw != null && !ct.IsCancellationRequested)
@@ -274,147 +138,142 @@ namespace AutoSteamApp
             return keyOrder.OrderBy(x => x.Value).Take(3).ToList();
         }
 
-        private static string GetActiveWindowTitle()
-        {
-            const int nChars = 256;
-            StringBuilder buff = new StringBuilder(nChars);
-            IntPtr handle = WindowsApi.GetForegroundWindow();
-
-            if (WindowsApi.GetWindowText(handle, buff, nChars) > 0)
-            {
-                return buff.ToString();
-            }
-
-            return null;
-        }
-
-        private static bool IsCurrentActiveMHW()
-        {
-            return mhw.MainWindowTitle == GetActiveWindowTitle();
-        }
-
         private static void DoWork(bool isSmartRun = true)
         {
             if (mhw != null && !ct.IsCancellationRequested)
             {
+
+                // Initialize the input simulator object     
                 InputSimulator sim = new InputSimulator();
 
-                SaveData sd = new SaveData(mhw, ct);
+                SaveData saveDat = new SaveData(mhw, ct);
+                short gauge = saveDat.SteamGauge;
 
-                ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
+                //// Set the memory address for the steamworks combo values
+                //ulong starter = Settings.Off_Base + Settings.Off_SteamworksCombo;
 
-                var pointerAddress = MemoryHelper.Read<ulong>(mhw, starter);
-                // offset the address
-                var offset_Address = pointerAddress + 0x350;
-                var offset_buttonPressState = offset_Address + 8;
+                //var pointerAddress = MemoryHelper.Read<ulong>(mhw, starter);
+                //// offset the address
+                //var offset_Address = pointerAddress + 0x350;
+                //var offset_buttonPressState = offset_Address + 8;
 
-                var oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
-                var fuelPerRound = 10;
+                //var oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
+                //var fuelPerRound = 10;
 
-                while (!shouldStop && !ct.IsCancellationRequested)
-                {
-                    // Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
+                //while(true)
+                //{
+                //    // Logger.LogInfo($"Gauge Data {sd.SteamGauge}!");
+                //    Console.WriteLine("Natural Fuel: " + sd.NaturalFuel);
+                //    Console.WriteLine("Bonus Time: " + sd.BonusTime);
+                //    Console.WriteLine("Steam Gauge: " + sd.SteamGauge);
+                //    Console.WriteLine("Stored Fuel: " + sd.StoredFuel);
+                //    Console.WriteLine("===============================================");
 
-                    // value of the offset address
-                    List<KeyValuePair<VirtualKeyCode, int>> ordered =
-                        isSmartRun ?
-                            ExtractCorrectSequence(mhw, offset_Address) :
-                            GetRandomSequence();
+                //    while (!shouldStop)
+                //        Thread.Sleep(1000);
 
-                    if (ordered == null)
-                    {
-                        Logger.LogInfo("The Steamworks minigame is not started. Please enter the minigame and Press 'Space' so that you see the first letters on your screen.");
+                //    shouldStop = false;
 
-                        // try again..
-                        continue;
-                    }
+                //    // value of the offset address
+                //    //List<KeyValuePair<VirtualKeyCode, int>> ordered =
+                //    //    isSmartRun ?
+                //    //        ExtractCorrectSequence(mhw, offset_Address) :
+                //    //        GetRandomSequence();
 
-                    int index = 0;
-                    while (index < 3)
-                    {
-                        try
-                        {
-                            var before = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                //    //if (ordered == null)
+                //    //{
+                //    //    Logger.LogInfo("The Steamworks minigame is not started. Please enter the minigame and Press 'Space' so that you see the first letters on your screen.");
 
-                            var item = ordered[index];
+                //    //    // try again..
+                //    //    continue;
+                //    //}
 
-                            byte after = before;
-                            while (before == after && !ct.IsCancellationRequested)
-                            {
-                                PressKey(sim, item.Key);
+                //    //int index = 0;
+                //    //while (index < 3)
+                //    //{
+                //    //    try
+                //    //    {
+                //    //        var before = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
 
-                                after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
-                            }
+                //    //        var item = ordered[index];
 
-                            index++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Error trying to press button sequence -> {ex.Message}");
-                        }
-                    }
+                //    //        byte after = before;
+                //    //        while (before == after && !ct.IsCancellationRequested)
+                //    //        {
+                //    //            PressKey(sim, item.Key);
 
-                    // Small work around to avoid blocking when running x10 fuel per sequence
-                    if (oldFuelValue - sd.NaturalFuel - sd.StoredFuel == 100)
-                    {
-                        fuelPerRound = 100;
-                    }
-                    else
-                    {
-                        fuelPerRound = 10;
-                    }
+                //    //            after = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                //    //        }
 
-                    oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
+                //    //        index++;
+                //    //    }
+                //    //    catch (Exception ex)
+                //    //    {
+                //    //        Logger.LogError($"Error trying to press button sequence -> {ex.Message}");
+                //    //    }
+                //    //}
 
-                    if (shouldStop)
-                    {
-                        break;
-                    }
+                //    //// Small work around to avoid blocking when running x10 fuel per sequence
+                //    //if (oldFuelValue - sd.NaturalFuel - sd.StoredFuel == 100)
+                //    //{
+                //    //    fuelPerRound = 100;
+                //    //}
+                //    //else
+                //    //{
+                //    //    fuelPerRound = 10;
+                //    //}
 
-                    var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
-                    while (currentState != (int)ButtonPressingState.BeginningOfSequence && !ct.IsCancellationRequested)
-                    {
-                        Thread.Sleep(50);
+                //    //oldFuelValue = sd.NaturalFuel + sd.StoredFuel;
 
-                        try
-                        {
-                            PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip, true);
+                //    //if (shouldStop)
+                //    //{
+                //    //    break;
+                //    //}
 
-                            // no more fuel
-                            if (currentState == (int)ButtonPressingState.EndOfGame)
-                            {
-                                if (sd.NaturalFuel + (sd.StoredFuel * (Settings.ShouldConsumeAllFuel ? 1 : 0)) < fuelPerRound)
-                                {
-                                    Logger.LogInfo(
-                                        string.Format(
-                                            "No more {0}fuel, stopping bot.",
-                                            Settings.ShouldConsumeAllFuel == false ? "Natural " : string.Empty));
+                //    //var currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                //    //while (currentState != (int)ButtonPressingState.BeginningOfSequence && !ct.IsCancellationRequested)
+                //    //{
+                //    //    Thread.Sleep(50);
 
-                                    shouldStop = true;
-                                    break;
-                                }
+                //    //    try
+                //    //    {
+                //    //        PressKey(sim, (VirtualKeyCode)Settings.KeyCutsceneSkip, true);
 
-                                if (sd.SteamGauge == 0)
-                                {
-                                    PressKey(sim, VirtualKeyCode.SPACE, true);
-                                }
-                            }
+                //    //        // no more fuel
+                //    //        if (currentState == (int)ButtonPressingState.EndOfGame)
+                //    //        {
+                //    //            if (sd.NaturalFuel + (sd.StoredFuel * (Settings.ShouldConsumeAllFuel ? 1 : 0)) < fuelPerRound)
+                //    //            {
+                //    //                Logger.LogInfo(
+                //    //                    string.Format(
+                //    //                        "No more {0}fuel, stopping bot.",
+                //    //                        Settings.ShouldConsumeAllFuel == false ? "Natural " : string.Empty));
 
-                            if (shouldStop)
-                            {
-                                break;
-                            }
+                //    //                shouldStop = true;
+                //    //                break;
+                //    //            }
 
-                            currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Trying to finish up combo: {ex.Message}");
-                        }
-                    }
-                }
+                //    //            if (sd.SteamGauge == 0)
+                //    //            {
+                //    //                PressKey(sim, VirtualKeyCode.SPACE, true);
+                //    //            }
+                //    //        }
 
-                api.Dispose();
+                //    //        if (shouldStop)
+                //    //        {
+                //    //            break;
+                //    //        }
+
+                //    //        currentState = MemoryHelper.Read<byte>(mhw, offset_buttonPressState);
+                //    //    }
+                //    //    catch (Exception ex)
+                //    //    {
+                //    //        Logger.LogError($"Trying to finish up combo: {ex.Message}");
+                //    //    }
+                //    //}
+                //}
+
+                //api.Dispose();
             }
         }
 
@@ -505,70 +364,16 @@ namespace AutoSteamApp
             }
         }
 
-        /// <summary>
-        /// Creates a windows form loop which listens to all keyboard events in a separate thread
-        /// </summary>
-        private static void HookKeyboardEvents()
-        {
-            // Create a new thread (This is because the Keystroke api needs to start a windows message loop, which would halt our program)
-            Task.Run(() =>
-            {
-                // Create a hook delegate which receives a KeyPressed character as arguments
-                api.CreateKeyboardHook((character) =>
-                {
-                    // If the character is the same as the smart start character defined in the config file
-                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStart)
-                    {
-                        // Set the start flag
-                        shouldStart = true;
-                        // Set the smart run flag
-                        IsSmartRun = true;
+        #endregion
 
-                        Logger.LogInfo(string.Format("Captured Start for 100% accuracy run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
-                    }
-
-                    // If the character is the same as the random start character defined in the config file
-                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStartRandom)
-                    {
-                        // Set the start flag
-                        shouldStart = true;
-                        // Disable the smart run flag
-                        IsSmartRun = false;
-
-                        Logger.LogInfo(string.Format("Captured Start for RANDOM run consuming >>{0}<< fuel!", Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
-                    }
-
-                    // If the character is the same as the stop character defined in the config file
-                    if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
-                    {
-                        // Signalt the cancellation token to halt
-                        ct.Cancel();
-
-                        // Disable toe start flag
-                        shouldStart = true;
-
-                        // Set the stop flag
-                        shouldStop = true;
-
-                        Logger.LogInfo($"Captured Stop execution. Exiting..!");
-
-                        // Kill this thread (stop listening to keyboard events)
-                        Application.Exit();
-                    }
-                });
-
-                // Start the windows form loop
-                Application.Run();
-            });
-        }
+        #region Helpers
 
         /// <summary>
         /// Returns the process which contains the process name as defined in the fields
         /// </summary>
         /// <returns></returns>
-        private static Process GetMHW()
-        {
-            
+        static Process GetMHW()
+        {          
             //Retrieve all processes with defined process name
             var processes = Process.GetProcessesByName(ProcessName);
             try

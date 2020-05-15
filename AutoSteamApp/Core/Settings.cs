@@ -8,13 +8,15 @@ namespace AutoSteamApp.Core
     public static class Settings
     {
         #region magic numbers
-        public static string SupportedGameVersion = "410014";
+
+        
 
         public static ulong Off_Base = 0x140000000;
         public static ulong Off_SteamworksCombo = 0x4EC78C0; 
         
         public static ulong Off_SaveData = 0x4F54590;
         public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
+
         #endregion
 
         private static uint _DelayBetweenCombo = 500;
@@ -104,6 +106,10 @@ namespace AutoSteamApp.Core
         #region keycodes
 
         private static int _keyCodeStart = -1;
+
+        /// <summary>
+        /// I feel like this should be named to KeyCopdeSmartStart
+        /// </summary>
         public static int KeyCodeStart
         {
             get
