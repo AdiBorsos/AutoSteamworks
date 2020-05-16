@@ -91,7 +91,9 @@ namespace AutoSteamApp
 
         static void Main(string[] args)
         {
-            SteamAutomater automater = new SteamAutomater();
+            // Set the configuration file to the specified path
+            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
+            SteamworkAutomaton automater = new SteamworkAutomaton();
             automater.Init();
         }
     }

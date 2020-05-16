@@ -42,5 +42,17 @@ namespace AutoSteamApp.Helpers
                 return Assembly.GetExecutingAssembly().GetName().Version;
             }
         }
+
+        public static string LogFile
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "LogFile"))
+                {
+                    return ConfigurationManager.AppSettings["LogFile"].Trim();
+                }
+                return null;
+            }
+        }
     }
 }
