@@ -89,9 +89,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\AutomatorConfiguration.cs" />
+    <Compile Include="Configuration\AutomatonConfiguration.cs" />
     <Compile Include="Helpers\MemoryHelper.cs" />
     <Compile Include="Helpers\Logging.cs" />
+    <Compile Include="Helpers\StaticHelpers.cs" />
     <Compile Include="Process Memory\MHWMemoryValues.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Helpers\WindowsApi.cs" />

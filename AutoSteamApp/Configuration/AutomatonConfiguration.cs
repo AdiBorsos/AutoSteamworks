@@ -8,8 +8,25 @@ using System.Threading.Tasks;
 
 namespace AutoSteamApp.Helpers
 {
-    public static class AutomatorConfiguration
+    public static class AutomatonConfiguration
     {
+
+        #region Constant parameters
+
+        /// <summary>
+        /// The maximum number of seconds the save data will attempt to find a slot before throwing an exception
+        /// </summary>
+        public const double MaxTimeSlotNumberSeconds = 30;
+
+        /// <summary>
+        /// The name of the process. Ideally this should be MonsterHunterWorld as this is likely never to change.
+        /// </summary>
+        public const string ProcessName = "MonsterHunterWorld";
+
+        #endregion
+
+        #region Dynamic parameters
+
         /// <summary>
         /// Returns whether or not the application is being run in debug mode.
         /// <para></para>
@@ -54,5 +71,8 @@ namespace AutoSteamApp.Helpers
                 return null;
             }
         }
+
+        #endregion
+
     }
 }
