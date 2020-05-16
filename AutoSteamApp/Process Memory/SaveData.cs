@@ -11,6 +11,9 @@ namespace AutoSteamApp.Process_Memory
 {
     public class SaveData
     {
+
+        #region Fields
+
         /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
         /// </summary>
@@ -53,6 +56,8 @@ namespace AutoSteamApp.Process_Memory
                 return MemoryHelper.Read<short>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToSteamGauge);
             }
         }
+
+        #endregion
 
         #region Constructor
 
