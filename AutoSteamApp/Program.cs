@@ -11,6 +11,7 @@ using AutoSteamApp.Process_Memory;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
 using Keystroke.API;
+using Logging;
 
 namespace AutoSteamApp
 {
@@ -94,7 +95,24 @@ namespace AutoSteamApp
             // Set the configuration file to the specified path
             AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
             SteamworkAutomaton automater = new SteamworkAutomaton();
-            automater.Init();
+            Log.Message("Press Any Key to begin.");
+            Console.ReadKey();
+
+            // Create a cancellation token for the thread
+            CancellationTokenSource cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+
+            // Spawn a task to do the work in a separate thread
+            Task t = Task.Run(() => { automater.Run(token); });
+
+            Log.Message("Enter quit to stop");
+            while (Console.ReadLine() != "quit")
+            {
+                // Wait for exit command
+            }
+
+            // Quit, as well as all underlying threads
+            Environment.Exit(0);
         }
     }
 }

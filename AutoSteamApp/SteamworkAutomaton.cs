@@ -2,7 +2,11 @@
 using AutoSteamApp.Helpers;
 using Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AutoSteamApp
 {
@@ -20,7 +24,7 @@ namespace AutoSteamApp
         /// </summary>
         static void SetConsoleTitle()
         {
-            Version ver = AutomatorConfiguration.ApplicationVersion;
+            Version ver = AutomatonConfiguration.ApplicationVersion;
             string title = "Steamworks Automaton V:" + ver.Major + "." + ver.Minor;
             title += "        ";
             title += "Supported MHW:IB Version: " + MHWMemoryValues.SupportedGameVersion;
@@ -36,12 +40,12 @@ namespace AutoSteamApp
             Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Error;
 
             // If we're in debug mode, heighten the logging which takes place
-            if (AutomatorConfiguration.IsDebug)
+            if (AutomatonConfiguration.IsDebug)
             {
                 LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Warning;
 
                 // Check if we need to write logs to a file
-                string logFile = AutomatorConfiguration.LogFile;
+                string logFile = AutomatonConfiguration.LogFile;
                 if (!string.IsNullOrEmpty(logFile))
                 {
                     // Try to create a stream using the log file
@@ -68,5 +72,12 @@ namespace AutoSteamApp
             Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
         }
 
+        public void Run(CancellationToken cts)
+        {
+            Console.WriteLine("Error occured, exiting");
+            Thread.Sleep(10000);
+            Process p = StaticHelpers.GetMHWProcess();
+            Environment.Exit(1);
+        }
     }
 }
