@@ -7,44 +7,34 @@ namespace AutoSteamApp
 {
     public class SteamAutomater
     {
-
-        private void Init()
+        public void Init()
         {
             SetConsoleTitle();
-            if(StaticHelpers.IsDebug)
-                Log.SetStream(Console.OpenStandardOutput(), true);
-            Console.WriteLine(string.Empty);
 
-            Console.WriteLine(
-                string.Format(
-                    "Based on the current settings, this run will consume: {0} fuel. If this was not intended, please change AutoSteamApp.exe.config.",
-                    Settings.ShouldConsumeAllFuel ? "ALL the available" : "ONLY the Natural"));
-            Console.WriteLine(string.Empty);
+            // Set the logging properties
+            Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Error;
 
-            WriteSeparator();
-            Console.WriteLine($"Please select the type of run you want. When the run is finished, the app will close.");
+            // If we're in debug mode, heighten the logging which takes place
+            if (AutomatorConfiguration.IsDebug)
+                LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Warning;
+            Log.SetStream(null, true, LoggingTypes);
 
-            WriteSeparator();
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStart).ToString()}' to ->");
-            Console.WriteLine($"        Run with 100% Accuracy (requires correct game version)");
+            Log.Debug("Debugging~!");
+            Log.Message("Message~!");
 
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStartRandom).ToString()}' to ->");
-            Console.WriteLine($"        Do a RANDOM run. This method will give unpredictable results, there is no check for values.");
-            WriteSeparator();
-
-            Console.WriteLine($"Press '{((KeyCode)Settings.KeyCodeStop).ToString()}' to end typing");
         }
 
-
+        /// <summary>
+        /// Sets the console title of the app
+        /// </summary>
         public static void SetConsoleTitle()
         {
-            Version ver = StaticHelpers.ApplicationVersion;
+            Version ver = AutomatorConfiguration.ApplicationVersion;
             string title = "Steamworks Automaton V:" + ver.Major + "." + ver.Minor;
-            title += "\t";
+            title += "        ";
             title += "Supported MHW:IB Version: " + MHWMemoryValues.SupportedGameVersion;
             Console.Title = title;
         }
-
 
     }
 }
