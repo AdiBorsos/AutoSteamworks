@@ -1,4 +1,5 @@
 ﻿using AutoSteamApp.Core;
+using AutoSteamApp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +14,11 @@ namespace AutoSteamApp.Process_Memory
     {
 
         #region Fields
+
+        /// <summary>
+        /// The token used to signal stop reading
+        /// </summary>
+        CancellationTokenSource CancellationToken;
 
         /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
@@ -67,9 +73,10 @@ namespace AutoSteamApp.Process_Memory
         /// <param name="mhwProcess">The Monster Hunter World: Iceborne process to load player data from.</param>
         /// <param name="cancellationToken">The cancellation token used for invoking a cnacellation of the program.</param>
         /// <param name="Pointer1Value">The value found in the po</param>
-        public SaveData(Process mhwProcess)
+        public SaveData(Process mhwProcess, CancellationTokenSource cancellationToken)
         {
             MHWProcess = mhwProcess;
+            CancellationToken = cancellationToken;
             LoadData();
         }
 
@@ -125,7 +132,8 @@ namespace AutoSteamApp.Process_Memory
             // Doing it in a more "programmy" way.
             int retVal = -1;
             bool found = false;
-            while (!found)
+            DateTime start = DateTime.Now;
+            while (!found && !CancellationToken.IsCancellationRequested)
             {
                 // Repeat the same as above until one of the slots changes or cancellation is requested. 
                 // This indicates that the changed slot is being played currently.
@@ -149,6 +157,8 @@ namespace AutoSteamApp.Process_Memory
                         break;
                     }
                 }
+                if ((DateTime.Now - start).TotalSeconds > AutomatonConfiguration.MaxTimeSlotNumberSeconds)
+                    throw new TimeoutException("There was an issue determining the currently used slot number.");
             }
             return retVal;
         }
