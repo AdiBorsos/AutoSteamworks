@@ -8,7 +8,8 @@ namespace AutoSteamApp
 {
     public class SteamworkAutomaton
     {
-        public void Init()
+
+        public SteamworkAutomaton()
         {
             SetConsoleTitle();
             SetLogger();

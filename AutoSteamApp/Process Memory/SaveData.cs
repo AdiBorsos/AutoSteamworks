@@ -17,11 +17,6 @@ namespace AutoSteamApp.Process_Memory
         Process MHWProcess;
 
         /// <summary>
-        /// The cancellation token used for invoking a cnacellation of the program.
-        /// </summary>
-        CancellationTokenSource CancellationToken;
-
-        /// <summary>
         /// The pointer to the steamworks save data.
         /// </summary>
         ulong SteamworksSaveDataPointer;
@@ -67,10 +62,9 @@ namespace AutoSteamApp.Process_Memory
         /// <param name="mhwProcess">The Monster Hunter World: Iceborne process to load player data from.</param>
         /// <param name="cancellationToken">The cancellation token used for invoking a cnacellation of the program.</param>
         /// <param name="Pointer1Value">The value found in the po</param>
-        public SaveData(Process mhwProcess, CancellationTokenSource cancellationToken)
+        public SaveData(Process mhwProcess)
         {
             MHWProcess = mhwProcess;
-            CancellationToken = cancellationToken;
             LoadData();
         }
 
@@ -126,7 +120,7 @@ namespace AutoSteamApp.Process_Memory
             // Doing it in a more "programmy" way.
             int retVal = -1;
             bool found = false;
-            while (!found && !CancellationToken.IsCancellationRequested)
+            while (!found)
             {
                 // Repeat the same as above until one of the slots changes or cancellation is requested. 
                 // This indicates that the changed slot is being played currently.
