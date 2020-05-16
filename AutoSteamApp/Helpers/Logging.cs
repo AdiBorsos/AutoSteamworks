@@ -17,7 +17,8 @@ namespace Logging
             Warning = 1,
             Error = 2,
             Exception = 4,
-            Message = 8
+            Message = 8,
+            Debug = 16
         }
 
         /// <summary>
@@ -103,7 +104,7 @@ namespace Logging
         /// </summary>
         /// <param name="ToSet">The stream you would like the information to be logged to</param>
         /// <param name="AllowedLoggingTypes">The allowed log types</param>
-        public static void SetStream(Stream ToSet, bool outputToConsole = false, LogTypes AllowedLoggingTypes = (LogTypes)15)
+        public static void SetStream(Stream ToSet, bool outputToConsole = false, LogTypes AllowedLoggingTypes = (LogTypes)31)
         {
             EndStream();
             allowed = AllowedLoggingTypes;
@@ -130,20 +131,7 @@ namespace Logging
         /// <param name="context">The context should you want this ot be passed</param>
         public static void Warning(string message, object context = null)
         {
-            if ((allowed & LogTypes.Warning) == LogTypes.None)
-                return;
-            if (!Streaming)
-                return;
-            DateTime now = DateTime.Now;
-            string line = now.ToString(DATE_FORMAT) + " - {Warning}||";
-            line += "\t" + message;
-            if (context != null)
-                line += "\n{Context}" + context.ToString();
-            if (ConsoleStream)
-                Console.WriteLine(line);
-            writer.WriteLine(line);
-            writer.Flush();
-            LogOccured?.Invoke(new LogEventArgs() { Log = message, LogContext = context, LogType = LogTypes.Warning });
+            Write(message, LogTypes.Warning, context);
 
         }
 
@@ -154,20 +142,7 @@ namespace Logging
         /// <param name="context">The context should you want this ot be passed</param>
         public static void Error(string message, object context = null)
         {
-            if ((allowed & LogTypes.Error) == LogTypes.None)
-                return;
-            if (!Streaming)
-                return;
-            DateTime now = DateTime.Now;
-            string line = now.ToString(DATE_FORMAT) + " - {Error}||";
-            line += "\t" + message;
-            if (context != null)
-                line += "\n{Context}" + context.ToString();
-            if (ConsoleStream)
-                Console.WriteLine(line);
-            writer.WriteLine(line);
-            writer.Flush();
-            LogOccured?.Invoke(new LogEventArgs() { Log = message, LogContext = context, LogType = LogTypes.Error });
+            Write(message, LogTypes.Error, context);
         }
 
         /// <summary>
@@ -177,20 +152,7 @@ namespace Logging
         /// <param name="context">The context should you want this ot be passed</param>
         public static void Exception(Exception e, object context = null)
         {
-            if ((allowed & LogTypes.Exception) == LogTypes.None)
-                return;
-            if (!Streaming)
-                return;
-            DateTime now = DateTime.Now;
-            string line = now.ToString(DATE_FORMAT) + " - {Exception}||";
-            line += "\t" + e.ToString();
-            if (context != null)
-                line += "\n{Context}" + context.ToString();
-            if (ConsoleStream)
-                Console.WriteLine(line);
-            writer.WriteLine(line);
-            writer.Flush();
-            LogOccured?.Invoke(new LogEventArgs() { Log = e.Message, LogContext = context, LogType = LogTypes.Exception });
+            Write(e.ToString(), LogTypes.Exception, context);
         }
 
         /// <summary>
@@ -200,12 +162,33 @@ namespace Logging
         /// <param name="context">The context should you want this ot be passed</param>
         public static void Message(string message, object context = null)
         {
-            if ((allowed & LogTypes.Message) == LogTypes.None)
+            Write(message, LogTypes.Message, context);
+        }
+
+        /// <summary>
+        /// Writes a debug statement to the current log stream
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="context"></param>
+        public static void Debug(string message, object context = null)
+        {
+            Write(message, LogTypes.Debug, context);
+        }
+
+        /// <summary>
+        /// Formats a given message to the log stream
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="type"></param>
+        /// <param name="context"></param>
+        private static void Write(string message, LogTypes type, object context)
+        {
+            if ((allowed & type) == LogTypes.None)
                 return;
             if (!Streaming)
                 return;
             DateTime now = DateTime.Now;
-            string line = now.ToString(DATE_FORMAT) + " - {Message}||";
+            string line = now.ToString(DATE_FORMAT) + " - {" + type + "}||";
             line += "\t" + message;
             if (context != null)
                 line += "\n{Context}" + context.ToString();
@@ -213,7 +196,7 @@ namespace Logging
                 Console.WriteLine(line);
             writer.WriteLine(line);
             writer.Flush();
-            LogOccured?.Invoke(new LogEventArgs() { Log = message, LogContext = context, LogType = LogTypes.Message });
+            LogOccured?.Invoke(new LogEventArgs() { Log = message, LogContext = context, LogType = type });
         }
 
         #endregion
