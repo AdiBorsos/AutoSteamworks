@@ -15,20 +15,24 @@ namespace AutoSteamApp
     public class SteamworkAutomaton
     {
 
+        #region Fields
+
         /// <summary>
         /// Process loaded in the constructor.
         /// </summary>
-        Process mhwProcess;
+        Process _Process;
 
         /// <summary>
         /// Save data loaded in the constructor.
         /// </summary>
-        SaveData saveData;
+        SaveData _SaveData;
 
         /// <summary>
         /// Field used to flag whether or not the currently running MHW:IB version is supported.
         /// </summary>
-        bool SupportedVersion = false;
+        bool _SupportedVersion = false;
+
+        #endregion
 
         /// <summary>
         /// Constructor which loads all required process memory and configuration values.
@@ -66,11 +70,11 @@ namespace AutoSteamApp
         {
             Log.Message("Attempting to load MHW:IB Process.");
             // First set the mhw process
-            mhwProcess = StaticHelpers.GetMHWProcess();
+            _Process = StaticHelpers.GetMHWProcess();
 
             Log.Message("Process Loaded. Retrieving version");
             // Now verify the version
-            Match match = Regex.Match(mhwProcess.MainWindowTitle, AutomatonConfiguration.SupportedVersionRegex);
+            Match match = Regex.Match(_Process.MainWindowTitle, AutomatonConfiguration.SupportedVersionRegex);
             // If the match is made
             if (match.Success)
                 // And we have a capture group
@@ -83,18 +87,18 @@ namespace AutoSteamApp
                         if (result == AutomatonConfiguration.SupportedGameVersion)
                         {
                             // Set the flag
-                            SupportedVersion = true;
+                            _SupportedVersion = true;
                             return;
                         }
                         Log.Warning(
-                                    "Version unsupported. Currently supported version: " + AutomatonConfiguration.SupportedGameVersion +
-                                    "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
+                            "Version unsupported. Currently supported version: " + AutomatonConfiguration.SupportedGameVersion +
+                            "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
                                     );
                         return;
                     }
             Log.Error(
-                        "Could not verify game version. This is most likely due to a different versioning system being used by Capcom."+
-                        "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
+                "Could not verify game version. This is most likely due to a different versioning system being used by Capcom." +
+                "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
                      );
         }
 
