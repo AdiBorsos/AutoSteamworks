@@ -76,11 +76,5 @@ namespace AutoSteamApp
 
         #endregion
 
-        #region Helpers
-
-        
-
-        #endregion
-
     }
 }
