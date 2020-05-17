@@ -22,7 +22,8 @@ namespace AutoSteamApp
 
         public SteamworkAutomaton()
         {
-            SetConsoleTitle();
+            // First set the mhw process
+            mhwProcess = StaticHelpers.GetMHWProcess();
             
         }
 

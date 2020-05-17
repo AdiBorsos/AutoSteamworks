@@ -29,14 +29,14 @@ namespace AutoSteamApp
             // Attempts to load an external config file if one is supplied
             if (args.Length > 0)
             {
-                SetConfig(args[0]);
+                StaticHelpers.SetConfig(args[0]);
             }
 
             // Set the console title
-            SetConsoleTitle();
+            StaticHelpers.SetConsoleTitle();
 
             // Initialize the logger
-            SetLogger();
+            StaticHelpers.SetLogger();
 
             /*
              * TODO: Print out some config details to the user for confirmation
@@ -78,75 +78,7 @@ namespace AutoSteamApp
 
         #region Helpers
 
-        /// <summary>
-        /// Attempts to load a config file if one is supplied.
-        /// </summary>
-        /// <param name="args"></param>
-        private static void SetConfig(string config)
-        {
-            // Set the configuration file to the specified path defined in the cmd line args
-            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = config;
-
-            // If an incorrect config file is loaded, exit the application
-            if (!AutomatonConfiguration.ConfigLoadedProperly)
-            {
-                Console.WriteLine("Defined config file could not be found. Defaulting to original.");
-                AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
-            }
-        }
-
-        /// <summary>
-        /// Sets the proper log methods depending on the configuration found in the .config file
-        /// </summary>
-        static void SetLogger()
-        {
-            // Initialize the different log types
-            Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Error;
-
-            // If we're in debug mode, heighten the logging which takes place
-            if (AutomatonConfiguration.IsDebug)
-            {
-                LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Warning;
-
-                // Check if we need to write logs to a file
-                string logFile = AutomatonConfiguration.LogFile;
-                if (!string.IsNullOrEmpty(logFile))
-                {
-                    // Try to create a stream using the log file
-                    try
-                    {
-                        FileStream logStream = File.Create(logFile);
-                        Log.SetStream(logStream, true, LoggingTypes);
-                        return;
-                    }
-                    // In the event of failure, log to console instead
-                    catch (Exception e)
-                    {
-                        Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
-                        Log.Exception(e, logFile);
-                        return;
-                    }
-                }
-                // If no log file is specified, log to console instead
-                Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
-                Log.Warning("No log file specified. All logs written to console.");
-                return;
-            }
-            // If not in debug mode, write messages to console
-            Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
-        }
-
-        /// <summary>
-        /// Sets the console title of the app
-        /// </summary>
-        static void SetConsoleTitle()
-        {
-            Version ver = AutomatonConfiguration.ApplicationVersion;
-            string title = "Steamworks Automaton V:" + ver.Major + "." + ver.Minor;
-            title += "        ";
-            title += "Supported MHW:IB Version: " + MHWMemoryValues.SupportedGameVersion;
-            Console.Title = title;
-        }
+        
 
         #endregion
 
