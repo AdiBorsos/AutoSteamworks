@@ -94,12 +94,11 @@
     <Compile Include="Helpers\Logging.cs" />
     <Compile Include="Helpers\StaticHelpers.cs" />
     <Compile Include="Process Memory\MHWMemoryValues.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Helpers\WindowsApi.cs" />
     <Compile Include="Process Memory\SaveData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SteamworkAutomaton.cs" />
+    <Compile Include="Automaton\SteamworkAutomaton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

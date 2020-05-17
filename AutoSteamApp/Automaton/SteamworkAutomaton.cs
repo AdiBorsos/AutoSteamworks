@@ -22,19 +22,29 @@ namespace AutoSteamApp
 
         public SteamworkAutomaton()
         {
-            // First set the mhw process
-            mhwProcess = StaticHelpers.GetMHWProcess();
-            
+            try
+            {
+                // First set the mhw process
+                mhwProcess = StaticHelpers.GetMHWProcess();
+
+
+            }
+            catch (Exception e)
+            {
+                Exception error = new Exception("Failed to initialze Steamworks Automaton.", e);
+                Log.Exception(error);
+                throw error;
+            }
         }
 
-        
 
-        
+
+
 
 
         public void Run(CancellationToken cts)
         {
-            
+
             Environment.Exit(1);
         }
     }
