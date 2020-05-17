@@ -111,6 +111,14 @@ namespace AutoSteamApp
                 // Wait for exit command
             }
 
+            Log.Message("Waiting for thread to exit...");
+            //When exit is invoked, cancel the token
+            cts.Cancel();
+
+            // Wait for the thread to finish.
+            t.Wait();
+            Log.Message("Exiting");
+
             // Quit, as well as all underlying threads
             Environment.Exit(0);
         }
