@@ -56,7 +56,7 @@ namespace AutoSteamApp
         /// Performs the main logic loop of reading the steamworks sequence, 
         /// then performing actions depending on the configurations.
         /// </summary>
-        /// <param name="cts">Cancellation token used to invoke an exit.</param>
+        /// <param name="cts">Cancellation token used to signal an exit.</param>
         public void Run(CancellationToken cts)
         {
             try

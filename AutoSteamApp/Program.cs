@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using AutoSteamApp.Helpers;
+using Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using AutoSteamApp.Core;
-using AutoSteamApp.Helpers;
-using AutoSteamApp.Process_Memory;
-using GregsStack.InputSimulatorStandard;
-using GregsStack.InputSimulatorStandard.Native;
-using Keystroke.API;
-using Logging;
 
 namespace AutoSteamApp
 {
