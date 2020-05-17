@@ -168,8 +168,8 @@ namespace Logging
         /// <summary>
         /// Writes a debug statement to the current log stream
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="context"></param>
+        /// <param name="message">The message to be used for this warning</param>
+        /// <param name="context">The context should you want this ot be passed</param>
         public static void Debug(string message, object context = null)
         {
             Write(message, LogTypes.Debug, context);
