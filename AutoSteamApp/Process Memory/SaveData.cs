@@ -16,11 +16,6 @@ namespace AutoSteamApp.Process_Memory
         #region Fields
 
         /// <summary>
-        /// The token used to signal stop reading
-        /// </summary>
-        CancellationTokenSource CancellationToken;
-
-        /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
         /// </summary>
         Process MHWProcess;
@@ -73,10 +68,9 @@ namespace AutoSteamApp.Process_Memory
         /// <param name="mhwProcess">The Monster Hunter World: Iceborne process to load player data from.</param>
         /// <param name="cancellationToken">The cancellation token used for invoking a cnacellation of the program.</param>
         /// <param name="Pointer1Value">The value found in the po</param>
-        public SaveData(Process mhwProcess, CancellationTokenSource cancellationToken)
+        public SaveData(Process mhwProcess)
         {
             MHWProcess = mhwProcess;
-            CancellationToken = cancellationToken;
             LoadData();
         }
 
@@ -133,7 +127,7 @@ namespace AutoSteamApp.Process_Memory
             int retVal = -1;
             bool found = false;
             DateTime start = DateTime.Now;
-            while (!found && !CancellationToken.IsCancellationRequested)
+            while (!found)
             {
                 // Repeat the same as above until one of the slots changes or cancellation is requested. 
                 // This indicates that the changed slot is being played currently.

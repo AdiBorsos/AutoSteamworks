@@ -1,6 +1,7 @@
 ﻿using AutoSteamApp.Core;
 using AutoSteamApp.Helpers;
 using AutoSteamApp.Process_Memory;
+using GregsStack.InputSimulatorStandard;
 using Logging;
 using System;
 using System.Diagnostics;
@@ -32,6 +33,11 @@ namespace AutoSteamApp
         /// </summary>
         bool _SupportedVersion = false;
 
+        /// <summary>
+        /// The input simulator used to mock button presses.
+        /// </summary>
+        InputSimulator _InputSimulator;
+
         #endregion
 
         /// <summary>
@@ -42,6 +48,8 @@ namespace AutoSteamApp
             try
             {
                 LoadAndVerifyProcess();
+                _SaveData = new SaveData(_Process);
+                _InputSimulator = new InputSimulator();
             }
             catch (Exception e)
             {
@@ -60,8 +68,7 @@ namespace AutoSteamApp
         public void Run(CancellationToken cts)
         {
             try
-            {
-
+            { 
             }
             catch (Exception e)
             {
