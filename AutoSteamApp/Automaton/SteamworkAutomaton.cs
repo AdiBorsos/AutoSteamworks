@@ -64,9 +64,11 @@ namespace AutoSteamApp
         /// 
         private void LoadAndVerifyProcess()
         {
+            Log.Message("Attempting to load MHW:IB Process.");
             // First set the mhw process
             mhwProcess = StaticHelpers.GetMHWProcess();
 
+            Log.Message("Process Loaded. Retrieving version");
             // Now verify the version
             Match match = Regex.Match(mhwProcess.MainWindowTitle, AutomatonConfiguration.SupportedVersionRegex);
             // If the match is made
@@ -75,10 +77,25 @@ namespace AutoSteamApp
                 if (match.Groups.Count > 1)
                     // Try to turn it into a number
                     if (int.TryParse(match.Groups[1].Value, out int result))
+                    {
+                        Log.Message("Version found: " + result);
                         // If it is a numeber and is the same as the supported version
                         if (result == AutomatonConfiguration.SupportedGameVersion)
+                        {
                             // Set the flag
                             SupportedVersion = true;
+                            return;
+                        }
+                        Log.Warning(
+                                    "Version unsupported. Currently supported version: " + AutomatonConfiguration.SupportedGameVersion +
+                                    "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
+                                    );
+                        return;
+                    }
+            Log.Error(
+                        "Could not verify game version. This is most likely due to a different versioning system being used by Capcom."+
+                        "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
+                     );
         }
 
         #endregion
