@@ -45,16 +45,31 @@ namespace AutoSteamApp
             }
             catch (Exception e)
             {
-                Exception error = new Exception("Failed to initialze Steamworks Automaton.", e);
-                Log.Exception(error);
-                throw error;
+                Log.Exception(new Exception("Failed to initialze Steamworks Automaton\n\t", e));
+                Log.Warning("Something went wrong reading the MHW:IB process. Press any key to exit");
+                Console.ReadKey();
+                Environment.Exit(0);
             }
         }
 
+        /// <summary>
+        /// Performs the main logic loop of reading the steamworks sequence, 
+        /// then performing actions depending on the configurations.
+        /// </summary>
+        /// <param name="cts">Cancellation token used to invoke an exit.</param>
         public void Run(CancellationToken cts)
         {
+            try
+            {
 
-            Environment.Exit(1);
+            }
+            catch (Exception e)
+            {
+                Log.Exception(new Exception("Failed reading/inputting sequence\n\t", e));
+                Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
         }
 
         #region Helpers
