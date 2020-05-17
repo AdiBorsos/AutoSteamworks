@@ -20,15 +20,8 @@ namespace AutoSteamApp.Helpers
         {
             //Retrieve all processes with defined process name
             var processes = Process.GetProcessesByName(AutomatonConfiguration.ProcessName);
-            try
-            {
-                // Try to return the first one
-                return processes.FirstOrDefault(p => p != null && p.ProcessName.Equals(AutomatonConfiguration.ProcessName) && !p.HasExited);
-            }
-            catch
-            {
-                throw new Exception("Could not find a running MHW process.");
-            }
+            // Try to return the first one
+            return processes.First(p => p != null && p.ProcessName.Equals(AutomatonConfiguration.ProcessName) && !p.HasExited);
         }
 
         /// <summary>
