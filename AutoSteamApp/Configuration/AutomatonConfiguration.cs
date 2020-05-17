@@ -23,6 +23,16 @@ namespace AutoSteamApp.Helpers
         /// </summary>
         public const string ProcessName = "MonsterHunterWorld";
 
+        /// <summary>
+        /// The MHW:IB version which is the currently supported
+        /// </summary>
+        public const int SupportedGameVersion = 410014;
+
+        /// <summary>
+        /// Regex used to pull out the supported version
+        /// </summary>
+        public const string SupportedVersionRegex = @"\(([0-9]+)\)";
+
         #endregion
 
         #region Dynamic parameters
