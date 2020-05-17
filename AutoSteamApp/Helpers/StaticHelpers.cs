@@ -47,12 +47,12 @@ namespace AutoSteamApp.Helpers
         public static void SetLogger()
         {
             // Initialize the different log types
-            Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Error;
+            Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Warning;
 
             // If we're in debug mode, heighten the logging which takes place
             if (AutomatonConfiguration.IsDebug)
             {
-                LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Warning;
+                LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Error;
 
                 // Check if we need to write logs to a file
                 string logFile = AutomatonConfiguration.LogFile;
