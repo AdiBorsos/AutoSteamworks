@@ -28,6 +28,17 @@ namespace AutoSteamApp.Helpers
         #region Dynamic parameters
 
         /// <summary>
+        /// Returns whether the config file was located, and keys were able to be loaded properly
+        /// </summary>
+        public static bool ConfigLoadedProperly
+        {
+            get
+            {
+                return (ConfigurationManager.AppSettings.AllKeys.Length > 0);
+            }
+        }
+
+        /// <summary>
         /// Returns whether or not the application is being run in debug mode.
         /// <para></para>
         /// Debug is defined by either the executing assembly, or in the config file.
