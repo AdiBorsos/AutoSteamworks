@@ -17,7 +17,7 @@ namespace AutoSteamApp.Helpers
         public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
+        public static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,20 @@ namespace AutoSteamApp.Helpers
                 array[i] = t;
             }
             return array;
+        }
+
+        public static bool HasFocus(this Process process)
+        {
+            var activatedHandle = WindowsApi.GetForegroundWindow();
+            if (activatedHandle == IntPtr.Zero)
+            {
+                return false;       // No window is currently activated
+            }
+
+            int activeProcId;
+            WindowsApi.GetWindowThreadProcessId(activatedHandle, out activeProcId);
+
+            return activeProcId == process.Id;
         }
 
         #endregion
