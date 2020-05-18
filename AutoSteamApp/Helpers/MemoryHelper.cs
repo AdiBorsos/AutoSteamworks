@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace AutoSteamApp.Core
+namespace AutoSteamApp.Helpers
 {
     public static class MemoryHelper
     {

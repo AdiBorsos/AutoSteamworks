@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace AutoSteamApp.Core
+namespace AutoSteamApp.Helpers
 {
     public static class WindowsApi
     {

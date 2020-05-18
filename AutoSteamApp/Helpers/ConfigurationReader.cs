@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AutoSteamApp.Helpers
 {
-    public static class AutomatonConfiguration
+    public static class ConfigurationReader
     {
 
         #region Constant parameters

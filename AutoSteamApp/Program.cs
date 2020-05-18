@@ -1,4 +1,5 @@
-﻿using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Automaton;
+using AutoSteamApp.Helpers;
 using Logging;
 using System;
 using System.Threading;

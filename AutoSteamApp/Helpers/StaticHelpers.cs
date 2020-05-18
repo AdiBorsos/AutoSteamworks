@@ -1,12 +1,11 @@
-﻿using AutoSteamApp.Core;
+﻿using AutoSteamApp.ProcessMemory;
+using GregsStack.InputSimulatorStandard.Native;
 using Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoSteamApp.Helpers
 {
@@ -34,7 +33,7 @@ namespace AutoSteamApp.Helpers
             AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = config;
 
             // If an incorrect config file is loaded, exit the application
-            if (!AutomatonConfiguration.ConfigLoadedProperly)
+            if (!ConfigurationReader.ConfigLoadedProperly)
             {
                 Console.WriteLine("Defined config file could not be found. Defaulting to original.");
                 AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
@@ -50,12 +49,12 @@ namespace AutoSteamApp.Helpers
             Log.LogTypes LoggingTypes = Log.LogTypes.Message | Log.LogTypes.Warning;
 
             // If we're in debug mode, heighten the logging which takes place
-            if (AutomatonConfiguration.IsDebug)
+            if (ConfigurationReader.IsDebug)
             {
                 LoggingTypes |= Log.LogTypes.Debug | Log.LogTypes.Exception | Log.LogTypes.Error;
 
                 // Check if we need to write logs to a file
-                string logFile = AutomatonConfiguration.LogFile;
+                string logFile = ConfigurationReader.LogFile;
                 if (!string.IsNullOrEmpty(logFile))
                 {
                     // Try to create a stream using the log file
@@ -87,11 +86,57 @@ namespace AutoSteamApp.Helpers
         /// </summary>
         public static void SetConsoleTitle()
         {
-            Version ver = AutomatonConfiguration.ApplicationVersion;
+            Version ver = ConfigurationReader.ApplicationVersion;
             string title = "Steamworks Automaton V:" + ver.Major + "." + ver.Minor;
             title += "        ";
             title += "Supported MHW:IB Version: " + MHWMemoryValues.SupportedGameVersion;
             Console.Title = title;
         }
+
+        /// <summary>
+        /// Converts the byte sequence to an array of Virtual Key Codes using the index of the key as the order in which to press
+        /// <param name="sequence"></param>
+        /// <returns></returns>
+        public static VirtualKeyCode[] KeyCodeSequenceFromBytes(byte[] sequence)
+        {
+
+            Dictionary<int, VirtualKeyCode> dict = new Dictionary<int, VirtualKeyCode>();
+
+            if (ConfigurationReader.IsAzerty)
+            {
+                dict.Add(sequence[0], VirtualKeyCode.VK_Q);
+                dict.Add(sequence[1], VirtualKeyCode.VK_Z);
+                dict.Add(sequence[2], VirtualKeyCode.VK_D);
+            }
+            else
+            {
+                dict.Add(sequence[0], VirtualKeyCode.VK_A);
+                dict.Add(sequence[1], VirtualKeyCode.VK_W);
+                dict.Add(sequence[2], VirtualKeyCode.VK_D);
+            }
+
+            VirtualKeyCode[] retVal = dict.OrderBy(x => x.Key).Select(y => y.Value).ToArray();
+            // Return the virtual key code values ordered by the index assigned from the byte sequence
+            return retVal;
+        }
+
+        public static VirtualKeyCode[] RandomSequence()
+        {
+            VirtualKeyCode[] retVal = new VirtualKeyCode[3];
+            if (ConfigurationReader.IsAzerty)
+            {
+                retVal[0] = VirtualKeyCode.VK_Q;
+                retVal[1] = VirtualKeyCode.VK_Z;
+                retVal[2] = VirtualKeyCode.VK_D;
+            }
+            else
+            {
+                retVal[0] = VirtualKeyCode.VK_A;
+                retVal[1] = VirtualKeyCode.VK_W;
+                retVal[2] = VirtualKeyCode.VK_D;
+            }
+            return retVal.Shuffle();
+        }
+
     }
 }

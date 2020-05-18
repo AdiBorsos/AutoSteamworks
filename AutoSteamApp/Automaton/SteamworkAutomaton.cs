@@ -1,14 +1,14 @@
-﻿using AutoSteamApp.Core;
-using AutoSteamApp.Helpers;
-using AutoSteamApp.Process_Memory;
+﻿using AutoSteamApp.Helpers;
+using AutoSteamApp.ProcessMemory;
 using GregsStack.InputSimulatorStandard;
+using GregsStack.InputSimulatorStandard.Native;
 using Logging;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace AutoSteamApp
+namespace AutoSteamApp.Automaton
 {
 
     public class SteamworkAutomaton
@@ -79,6 +79,19 @@ namespace AutoSteamApp
         {
             try
             {
+                while (!cts.IsCancellationRequested)
+                {
+                    // Generate a sequence to input
+                    VirtualKeyCode[] sequence;
+                    if (_SupportedVersion)
+                        // If the version is supported, use the extracted sequence
+                        sequence = _SteamworksData.ExtractSequence();
+                    else
+                        // If the version is unsuported, use a random sequence
+                        sequence = StaticHelpers.RandomSequence();
+
+
+                }
             }
             catch (Exception e)
             {

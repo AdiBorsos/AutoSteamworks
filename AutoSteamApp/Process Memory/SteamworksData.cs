@@ -1,11 +1,10 @@
-﻿using AutoSteamApp.Core;
-using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Helpers;
 using GregsStack.InputSimulatorStandard.Native;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
-namespace AutoSteamApp.Process_Memory
+namespace AutoSteamApp.ProcessMemory
 {
 
     public class SteamworksData
@@ -79,25 +78,44 @@ namespace AutoSteamApp.Process_Memory
             RarityAddress = SteamworksAddress + MHWMemoryValues.OffsetToGameRarity;
         }
 
-        public Queue<VirtualKeyCode> ExtractSequence()
+        /// <summary>
+        /// Returns a tuple of keycodes to press corresponding to the correct sequence of moves 
+        /// </summary>
+        /// <returns>A Tuple </returns>
+        public VirtualKeyCode[] ExtractSequence()
         {
-            byte[] bytes = new byte[3];
-            bytes[0] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress);
-            bytes[1] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress + 1);
-            bytes[2] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress + 2);
+
+            // Read the byte representation of the sequence from the game
+            byte[] sequence = new byte[3];
+            sequence[0] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress);
+            sequence[1] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress + 1);
+            sequence[2] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress + 2);
 
             // return null if they are are all zero (indicates the minigame hasnt started)
-            if (bytes.AllIdentical())
-                if (bytes[0] == 0)
+            if (sequence.AllIdentical())
+                if (sequence[0] == 0)
                     return null;
                 else
-                    throw new Exception("Error reading correct sequence. An unknown sequence has been encountered. This is most likely due to an incompatible game version");
+                    throw new Exception("Error interpretting sequence [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
 
-            //Capcom has likely done some manipulation so we need to do some twidling because the sequences aren't as straightforward as we'd like.
+            // Capcom has likely done some manipulation so we need to do some twidling because the sequences aren't as straightforward as we'd like.
+            // Kudos to https://github.com/Geobryn for figuring this out,
+            if (sequence[0] == 2 && sequence[1] == 0 && sequence[2] == 1)
+            {
+                sequence[0] = 1;
+                sequence[1] = 2;
+                sequence[2] = 0;
+            }
+            else
+                if (sequence[0] == 1 && sequence[1] == 2 && sequence[2] == 0)
+            {
+                sequence[0] = 2;
+                sequence[1] = 0;
+                sequence[2] = 1;
+            }
 
-
-
-            throw new NotImplementedException();
+            // Return the array of key code presses extracted from the bytes
+            return StaticHelpers.KeyCodeSequenceFromBytes(sequence);
         }
 
         #endregion

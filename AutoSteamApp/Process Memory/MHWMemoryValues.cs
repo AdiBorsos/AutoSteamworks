@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AutoSteamApp.Core
+namespace AutoSteamApp.ProcessMemory
 {
     public static class MHWMemoryValues
     {

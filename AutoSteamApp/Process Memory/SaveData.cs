@@ -1,9 +1,8 @@
-﻿using AutoSteamApp.Core;
-using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Helpers;
 using System;
 using System.Diagnostics;
 
-namespace AutoSteamApp.Process_Memory
+namespace AutoSteamApp.ProcessMemory
 {
 
     public class SaveData
@@ -151,7 +150,7 @@ namespace AutoSteamApp.Process_Memory
                         break;
                     }
                 }
-                if ((DateTime.Now - start).TotalSeconds > AutomatonConfiguration.MaxTimeSlotNumberSeconds)
+                if ((DateTime.Now - start).TotalSeconds > ConfigurationReader.MaxTimeSlotNumberSeconds)
                     throw new TimeoutException("There was an issue determining the currently used slot number.");
             }
             return retVal;

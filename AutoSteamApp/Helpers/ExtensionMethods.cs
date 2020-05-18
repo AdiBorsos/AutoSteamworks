@@ -32,6 +32,28 @@ namespace AutoSteamApp.Helpers
             return true;
         }
 
+        /// <summary>
+        /// Shuffles an array using the fischer-yates algorithm.
+        /// </summary>
+        /// <typeparam name="T">Array element type.</typeparam>
+        /// <param name="array">Array to shuffle.</param>
+        public static T[] Shuffle<T>(this T[] array)
+        {
+            Random rng = new Random();
+            int n = array.Length;
+            for (int i = 0; i < (n - 1); i++)
+            {
+                // Use Next on random instance with an argument.
+                // ... The argument is an exclusive bound.
+                //     So we will not go past the end of the array.
+                int r = i + rng.Next(n - i);
+                T t = array[r];
+                array[r] = array[i];
+                array[i] = t;
+            }
+            return array;
+        }
+
         #endregion
 
     }
