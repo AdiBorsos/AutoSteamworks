@@ -81,26 +81,19 @@ namespace AutoSteamApp.Automaton
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    // Generate a sequence to input
-                    VirtualKeyCode[] sequence;
-                    if (_SupportedVersion)
-                        // If the version is supported, use the extracted sequence
-                        sequence = _SteamworksData.ExtractSequence();
-                    else
-                        // If the version is unsuported, use a random sequence
-                        sequence = StaticHelpers.RandomSequence();
-
-
+                    CheckSteamworksState(cts);
+                    ExtractAndEnterSequence(cts);
                 }
             }
             catch (Exception e)
             {
-                Log.Exception(new Exception("Failed reading/inputting sequence\n\t", e));
+                Log.Exception(new Exception("Failed automating steamworks\n\t", e));
                 Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
                 Console.ReadKey();
                 Environment.Exit(0);
             }
         }
+
 
         #endregion
 
@@ -147,6 +140,41 @@ namespace AutoSteamApp.Automaton
                 "Could not verify game version. This is most likely due to a different versioning system being used by Capcom." +
                 "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
                      );
+        }
+
+        void ExtractAndEnterSequence(CancellationToken cts)
+        {
+            // Generate a sequence to input
+            VirtualKeyCode[] sequence;
+            if (_SupportedVersion)
+                // If the version is supported, use the extracted sequence
+                sequence = _SteamworksData.ExtractSequence();
+            else
+                // If the version is unsuported, use a random sequence
+                sequence = StaticHelpers.RandomSequence();
+
+            // For each key in the sequence
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                // Record our pre-registered value for input
+                byte beforeKeyPressValue = _SteamworksData.ButtonPressCheckValue;
+
+                // While our input has not been recognized and we haven't been signalled to quit
+                while (_SteamworksData.ButtonPressCheckValue == beforeKeyPressValue && !cts.IsCancellationRequested)
+                {
+                    // Wait until we have focus
+                    if (!_Process.HasFocus())
+                        Log.Message("Waiting for MHW to have focus.");
+                    while (!_Process.HasFocus()) { };
+
+                    // Press the key
+                    StaticHelpers.PressKey(_InputSimulator, sequence[i]);
+                }
+            }
+        }
+        private void CheckSteamworksState(CancellationToken cts)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
