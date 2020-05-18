@@ -21,6 +21,10 @@ namespace AutoSteamApp.Process_Memory
         /// </summary>
         ulong SteamworksSaveDataPointer;
 
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// The integer value of the amount of natural fuel the player has left.
         /// </summary>
