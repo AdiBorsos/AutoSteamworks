@@ -3,6 +3,7 @@ using GregsStack.InputSimulatorStandard.Native;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace AutoSteamApp.ProcessMemory
 {
@@ -49,6 +50,21 @@ namespace AutoSteamApp.ProcessMemory
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// The value used to check whether the game has registered the input press.
+        /// </summary>
+        public byte ButtonPressCheckValue
+        {
+            get
+            {
+                return MemoryHelper.Read<byte>(MHWProcess, ButtonPressedCheckAddress);
+            }
+        }
+
+        #endregion
+
         #region Constructor
 
         public SteamworksData(Process mhwProcess)
@@ -79,7 +95,7 @@ namespace AutoSteamApp.ProcessMemory
         }
 
         /// <summary>
-        /// Returns a tuple of keycodes to press corresponding to the correct sequence of moves 
+        /// Returns a tuple of keycodes to press corresponding to the correct sequence of moves .
         /// </summary>
         /// <returns>A Tuple </returns>
         public VirtualKeyCode[] ExtractSequence()
