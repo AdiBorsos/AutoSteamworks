@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\AutomatonConfiguration.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="Helpers\MemoryHelper.cs" />
     <Compile Include="Helpers\Logging.cs" />
     <Compile Include="Helpers\StaticHelpers.cs" />
