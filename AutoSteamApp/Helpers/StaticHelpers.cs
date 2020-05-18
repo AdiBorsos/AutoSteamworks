@@ -19,9 +19,9 @@ namespace AutoSteamApp.Helpers
         public static Process GetMHWProcess()
         {
             //Retrieve all processes with defined process name
-            var processes = Process.GetProcessesByName(AutomatonConfiguration.ProcessName);
+            var processes = Process.GetProcessesByName(MHWMemoryValues.ProcessName);
             // Try to return the first one
-            return processes.First(p => p != null && p.ProcessName.Equals(AutomatonConfiguration.ProcessName) && !p.HasExited);
+            return processes.First(p => p != null && p.ProcessName.Equals(MHWMemoryValues.ProcessName) && !p.HasExited);
         }
 
         /// <summary>

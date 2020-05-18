@@ -5,14 +5,12 @@ using GregsStack.InputSimulatorStandard;
 using Logging;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace AutoSteamApp
 {
+
     public class SteamworkAutomaton
     {
 
@@ -29,6 +27,11 @@ namespace AutoSteamApp
         SaveData _SaveData;
 
         /// <summary>
+        /// Steamworks data loaded in constructor.
+        /// </summary>
+        SteamworksData _SteamworksData;
+
+        /// <summary>
         /// Field used to flag whether or not the currently running MHW:IB version is supported.
         /// </summary>
         bool _SupportedVersion = false;
@@ -40,6 +43,8 @@ namespace AutoSteamApp
 
         #endregion
 
+        #region Constructor
+
         /// <summary>
         /// Constructor which loads all required process memory and configuration values.
         /// </summary>
@@ -48,6 +53,7 @@ namespace AutoSteamApp
             try
             {
                 LoadAndVerifyProcess();
+                _SteamworksData = new SteamworksData(_Process);
                 _SaveData = new SaveData(_Process);
                 _InputSimulator = new InputSimulator();
             }
@@ -60,6 +66,10 @@ namespace AutoSteamApp
             }
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Performs the main logic loop of reading the steamworks sequence, 
         /// then performing actions depending on the configurations.
@@ -68,7 +78,7 @@ namespace AutoSteamApp
         public void Run(CancellationToken cts)
         {
             try
-            { 
+            {
             }
             catch (Exception e)
             {
@@ -78,6 +88,8 @@ namespace AutoSteamApp
                 Environment.Exit(0);
             }
         }
+
+        #endregion
 
         #region Helpers
 
@@ -96,7 +108,7 @@ namespace AutoSteamApp
 
             Log.Message("Process Loaded. Retrieving version");
             // Now verify the version
-            Match match = Regex.Match(_Process.MainWindowTitle, AutomatonConfiguration.SupportedVersionRegex);
+            Match match = Regex.Match(_Process.MainWindowTitle, MHWMemoryValues.SupportedVersionRegex);
             // If the match is made
             if (match.Success)
                 // And we have a capture group
@@ -106,14 +118,14 @@ namespace AutoSteamApp
                     {
                         Log.Message("Version found: " + result);
                         // If it is a numeber and is the same as the supported version
-                        if (result == AutomatonConfiguration.SupportedGameVersion)
+                        if (result == MHWMemoryValues.SupportedGameVersion)
                         {
                             // Set the flag
                             _SupportedVersion = true;
                             return;
                         }
                         Log.Warning(
-                            "Version unsupported. Currently supported version: " + AutomatonConfiguration.SupportedGameVersion +
+                            "Version unsupported. Currently supported version: " + MHWMemoryValues.SupportedGameVersion +
                             "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
                                     );
                         return;
@@ -127,4 +139,5 @@ namespace AutoSteamApp
         #endregion
 
     }
+
 }

@@ -1,15 +1,11 @@
 ﻿using AutoSteamApp.Core;
 using AutoSteamApp.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace AutoSteamApp.Process_Memory
 {
+
     public class SaveData
     {
 
@@ -160,4 +156,5 @@ namespace AutoSteamApp.Process_Memory
         #endregion
 
     }
+
 }

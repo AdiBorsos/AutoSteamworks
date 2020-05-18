@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,9 +13,19 @@ namespace AutoSteamApp.Core
         #region Process Version
 
         /// <summary>
-        /// The supported MHW:IB version in string format
+        /// The name of the process. Ideally this should be MonsterHunterWorld as this is likely never to change.
         /// </summary>
-        public static string SupportedGameVersion = "410014";
+        public const string ProcessName = "MonsterHunterWorld";
+
+        /// <summary>
+        /// The MHW:IB version which is the currently supported.
+        /// </summary>
+        public const int SupportedGameVersion = 410014;
+
+        /// <summary>
+        /// Regex used to match the supported version in the process title.
+        /// </summary>
+        public const string SupportedVersionRegex = @"\(([0-9]+)\)";
 
         #endregion
 
@@ -66,6 +77,26 @@ namespace AutoSteamApp.Core
         /// </summary>
         public const ulong OffsetToPlayTimePointer = 0xA0;
 
+        /// <summary>
+        /// Offset from the steamworks data address to the phase value.
+        /// </summary>
+        public const ulong OffsetToSteamPhase = 0x57C;
+
+        /// <summary>
+        /// Offset from the steamworks data address to the sequence data.
+        /// </summary>
+        public const ulong OffsetToSequence = 0x350;
+
+        /// <summary>
+        /// Offset from the steamworks data to the input button pressed check value.
+        /// </summary>
+        public const ulong OffsetToButtonCheck = 0x358;
+
+        /// <summary>
+        /// Offset from the steamworks data to the byte representing the rarity of the reward.
+        /// </summary>
+        public const ulong OffsetToGameRarity = 0x5E1;
+
         #endregion
 
         #region Addresses
@@ -80,9 +111,14 @@ namespace AutoSteamApp.Core
         #region Pointers
 
         /// <summary>
-        /// The address in which save data begins.
+        /// The pointer to where save data begins.
         /// </summary>
         public static ulong SaveDataPointer = BaseAddress + OffsetToSaveData;
+
+        /// <summary>
+        /// The pointer to where the steamworks data begins.
+        /// </summary>
+        public static ulong SteamworksDataPointer = BaseAddress + OffsetToSteamworksValues;
 
         #endregion
 

@@ -18,21 +18,6 @@ namespace AutoSteamApp.Helpers
         /// </summary>
         public const double MaxTimeSlotNumberSeconds = 30;
 
-        /// <summary>
-        /// The name of the process. Ideally this should be MonsterHunterWorld as this is likely never to change.
-        /// </summary>
-        public const string ProcessName = "MonsterHunterWorld";
-
-        /// <summary>
-        /// The MHW:IB version which is the currently supported.
-        /// </summary>
-        public const int SupportedGameVersion = 410014;
-
-        /// <summary>
-        /// Regex used to match the supported version in the process title.
-        /// </summary>
-        public const string SupportedVersionRegex = @"\(([0-9]+)\)";
-
         #endregion
 
         #region Dynamic parameters
