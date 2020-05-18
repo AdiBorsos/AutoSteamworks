@@ -1,4 +1,5 @@
 ﻿using AutoSteamApp.ProcessMemory;
+using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
 using Logging;
 using System;
@@ -136,6 +137,29 @@ namespace AutoSteamApp.Helpers
                 retVal[2] = VirtualKeyCode.VK_D;
             }
             return retVal.Shuffle();
+        }
+
+        /// <summary>
+        /// Simulates a key down, followed by key up event for a key
+        /// </summary>
+        /// <param name="sim">The input simulator to use.</param>
+        /// <param name="key">The key to press.</param>
+        /// <param name="delay">The delay to wait between key down and key up.</param>
+        public static void PressKey(InputSimulator sim, VirtualKeyCode key, int delay = 0)
+        {
+            Log.Message("Pressing: "+key+" with delay: "+delay+" ms");
+
+            // Im not sure if thread.sleep eats up allocation etc. resources when called with 0 as an argument
+            // So I've decided to skip it if the delay is 0
+            if (delay > 0)
+            {
+                sim.Keyboard.KeyDown(key);
+                sim.Keyboard.Sleep(delay);
+                sim.Keyboard.KeyUp(key);
+                return;
+            }
+
+            sim.Keyboard.KeyPress(key);
         }
 
     }
