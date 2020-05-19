@@ -30,6 +30,19 @@ namespace AutoSteamApp.Helpers
         public static void DisplayConfig()
         {
             Log.Message("Configuration Settings:");
+            Log.Message("\tApplication Version: " + ConfigurationReader.ApplicationVersion);
+            Log.Message("\tIs Debug: " + ConfigurationReader.IsDebug);
+
+            if (!ConfigurationReader.ConfigLoadedProperly)
+            {
+                Log.Warning("Config file was unable to load.");
+                return;
+            }
+            Log.Message("\tIs Azerty: " + ConfigurationReader.IsAzerty);
+            Log.Message("\tLog File: " + (ConfigurationReader.LogFile ?? "Not supplied") );
+            Log.Message("\tRandom Run: " + ConfigurationReader.RandomRun);
+            Log.Message("\tInput Delay on Random Run: " + ConfigurationReader.RandomInputDelay);
+            Log.Message("\tCutscene skip key: " + ConfigurationReader.KeyCutsceneSkip.ToString());
         }
 
         /// <summary>

@@ -76,7 +76,10 @@ namespace AutoSteamApp.Helpers
             {
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "LogFile"))
                 {
-                    return ConfigurationManager.AppSettings["LogFile"].Trim();
+                    string retVal = ConfigurationManager.AppSettings["LogFile"].Trim();
+                    if (string.IsNullOrEmpty(retVal))
+                        return null;
+                    return retVal;
                 }
                 return null;
             }
@@ -109,6 +112,7 @@ namespace AutoSteamApp.Helpers
                 {
                     if (int.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out int delay))
                         return delay;
+                    return 50;
                 }
                 return 50;
             }
@@ -157,6 +161,7 @@ namespace AutoSteamApp.Helpers
                 {
                     if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool azerty))
                         return azerty;
+                    return false;
                 }
                 return false;
             }

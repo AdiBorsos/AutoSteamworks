@@ -92,7 +92,7 @@ namespace AutoSteamApp.Automaton
                     }
                     else
                     {
-                        EnterRandomSequence();
+                        EnterRandomSequence(cts);
                     }
                 }
             }
