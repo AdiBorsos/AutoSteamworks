@@ -5,7 +5,7 @@ using GregsStack.InputSimulatorStandard.Native;
 using Logging;
 using System;
 using System.Diagnostics;
-using System.Linq.Expressions;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -153,7 +153,7 @@ namespace AutoSteamApp.Automaton
             {
                 // Generate a sequence to input
                 VirtualKeyCode[] sequence;
-                if (_SupportedVersion)
+                if (_SupportedVersion && !ConfigurationReader.RandomRun)
                     // If the version is supported, use the extracted sequence
                     sequence = _SteamworksData.ExtractSequence();
                 else
@@ -162,12 +162,13 @@ namespace AutoSteamApp.Automaton
                     sequence = StaticHelpers.RandomSequence();
                     // Press the buttons and wait 30ms then press start (in case the cutscene plays)
                     // Press the keys
+                    Log.Debug("Random Sequence: [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
                     StaticHelpers.PressKey(_InputSimulator, sequence[0]);
-                    Thread.Sleep(50);
+                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
                     StaticHelpers.PressKey(_InputSimulator, sequence[1]);
-                    Thread.Sleep(50);
+                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
                     StaticHelpers.PressKey(_InputSimulator, sequence[2]);
-                    Thread.Sleep(50);
+                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
                     StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE);
                     return;
                 }

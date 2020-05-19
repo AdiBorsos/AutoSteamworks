@@ -146,6 +146,22 @@ namespace AutoSteamApp.Helpers
             }
         }
 
+        /// <summary>
+        /// Sets if the values should be random
+        /// </summary>
+        public static bool RandomRun
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RandomRun"))
+                {
+                    if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool azerty))
+                        return azerty;
+                }
+                return false;
+            }
+        }
+
         #endregion
 
     }
