@@ -157,10 +157,26 @@ namespace AutoSteamApp.Automaton
                     // If the version is supported, use the extracted sequence
                     sequence = _SteamworksData.ExtractSequence();
                 else
+                {
                     // If the version is unsuported, use a random sequence
                     sequence = StaticHelpers.RandomSequence();
-                if (sequence == null)
+                    // Press the buttons and wait 30ms then press start (in case the cutscene plays)
+                    // Press the keys
+                    StaticHelpers.PressKey(_InputSimulator, sequence[0]);
+                    Thread.Sleep(50);
+                    StaticHelpers.PressKey(_InputSimulator, sequence[1]);
+                    Thread.Sleep(50);
+                    StaticHelpers.PressKey(_InputSimulator, sequence[2]);
+                    Thread.Sleep(50);
+                    StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE);
                     return;
+                }
+                if (sequence == null)
+                {
+                    Log.Debug("Could not find a valid sequence. Are you sure you are in the game?");
+                    Thread.Sleep(1000);
+                    return;
+                }
                 // For each key in the sequence
                 for (int i = 0; i < sequence.Length; i++)
                 {
