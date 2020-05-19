@@ -35,11 +35,6 @@ namespace AutoSteamApp.ProcessMemory
 
         /// <summary>
         /// Address used to read what phase the steamworks is in. 
-        /// <para>Phase values:</para>
-        /// <para>8 = Waiting for input</para>
-        /// <para>12 = Overload cutscene</para>
-        /// <para>5 = Press "space" to start</para>
-        /// <para>4 = Bonus begin animation</para>
         /// </summary>
         ulong PhaseAddress;
 
@@ -55,11 +50,22 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The value used to check whether the game has registered the input press.
         /// </summary>
-        public byte ButtonPressCheckValue
+        public byte InputPressStateCheck
         {
             get
             {
                 return MemoryHelper.Read<byte>(MHWProcess, ButtonPressedCheckAddress);
+            }
+        }
+
+        /// <summary>
+        /// Address used to read what phase the steamworks is in. 
+        /// </summary>
+        public byte PhaseValue
+        {
+            get
+            {
+                return MemoryHelper.Read<byte>(MHWProcess, PhaseAddress);
             }
         }
 
@@ -136,6 +142,27 @@ namespace AutoSteamApp.ProcessMemory
 
         #endregion
 
+    }
+
+    /// <summary>
+    /// Enum used for determining which state of button press are we in
+    /// </summary>
+    public enum ButtonPressedState
+    {
+        Beginning = 0,
+        End = 7
+    }
+
+    /// <summary>
+    /// Enum used for determining which state of the steamworks animations are we in
+    /// </summary>
+    public enum PhaseState
+    {
+        Fuel = 2,
+        Bonus = 4,
+        Settled = 5,
+        WaitingForInput = 8,
+        Cutscene = 12
     }
 
 }

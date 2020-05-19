@@ -43,6 +43,7 @@ namespace AutoSteamApp
             CancellationTokenSource cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
 
+
             // Spawn a task to do the work in a separate thread
             Task t = Task.Run(() => { automaton.Run(token); });
 

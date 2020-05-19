@@ -5,6 +5,7 @@ using GregsStack.InputSimulatorStandard.Native;
 using Logging;
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -62,7 +63,7 @@ namespace AutoSteamApp.Automaton
                 Log.Exception(new Exception("Failed to initialze Steamworks Automaton\n\t", e));
                 Log.Warning("Something went wrong reading the MHW:IB process. Press any key to exit");
                 Console.ReadKey();
-                Environment.Exit(0);
+                Environment.Exit(1);
             }
         }
 
@@ -90,7 +91,7 @@ namespace AutoSteamApp.Automaton
                 Log.Exception(new Exception("Failed automating steamworks\n\t", e));
                 Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
                 Console.ReadKey();
-                Environment.Exit(0);
+                Environment.Exit(1);
             }
         }
 
@@ -142,39 +143,85 @@ namespace AutoSteamApp.Automaton
                      );
         }
 
+        /// <summary>
+        /// Extracts from the process the correct sequence to input, then inputs it.
+        /// </summary>
+        /// <param name="cts">Cancellation token used to signal when to stop.</param>
         void ExtractAndEnterSequence(CancellationToken cts)
         {
-            // Generate a sequence to input
-            VirtualKeyCode[] sequence;
-            if (_SupportedVersion)
-                // If the version is supported, use the extracted sequence
-                sequence = _SteamworksData.ExtractSequence();
-            else
-                // If the version is unsuported, use a random sequence
-                sequence = StaticHelpers.RandomSequence();
-
-            // For each key in the sequence
-            for (int i = 0; i < sequence.Length; i++)
+            try
             {
-                // Record our pre-registered value for input
-                byte beforeKeyPressValue = _SteamworksData.ButtonPressCheckValue;
-
-                // While our input has not been recognized and we haven't been signalled to quit
-                while (_SteamworksData.ButtonPressCheckValue == beforeKeyPressValue && !cts.IsCancellationRequested)
+                // Generate a sequence to input
+                VirtualKeyCode[] sequence;
+                if (_SupportedVersion)
+                    // If the version is supported, use the extracted sequence
+                    sequence = _SteamworksData.ExtractSequence();
+                else
+                    // If the version is unsuported, use a random sequence
+                    sequence = StaticHelpers.RandomSequence();
+                if (sequence == null)
+                    return;
+                // For each key in the sequence
+                for (int i = 0; i < sequence.Length; i++)
                 {
-                    // Wait until we have focus
-                    if (!_Process.HasFocus())
-                        Log.Message("Waiting for MHW to have focus.");
-                    while (!_Process.HasFocus()) { };
+                    // Record our pre-registered value for input
+                    byte beforeKeyPressValue = _SteamworksData.InputPressStateCheck;
+                    byte afterKeyPressValue = beforeKeyPressValue;
+                    // While our input has not been recognized and we haven't been signalled to quit
+                    while (afterKeyPressValue == beforeKeyPressValue && !cts.IsCancellationRequested)
+                    {
+                        // Wait until we have focus
+                        if (!_Process.HasFocus())
+                            Log.Message("Waiting for MHW to have focus.");
+                        while (!_Process.HasFocus()) { };
 
-                    // Press the key
-                    StaticHelpers.PressKey(_InputSimulator, sequence[i]);
+                        // Press the key
+                        StaticHelpers.PressKey(_InputSimulator, sequence[i]);
+                        afterKeyPressValue = _SteamworksData.InputPressStateCheck;
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                throw new Exception("Error in extracting and entering sequence.", e);
+            }
         }
+
+        /// <summary>
+        /// Method used to ensure synchronization with the steamworks process and the inputting of key codes.
+        /// </summary>
+        /// <param name="cts">Cancellation token used to signal when to stop.</param>
         private void CheckSteamworksState(CancellationToken cts)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Check the current Button Press Check Value
+                byte currentButtonPressState = _SteamworksData.InputPressStateCheck;
+                // While the current game input state does not signify the beginning of the gamew
+                while (currentButtonPressState != (byte)ButtonPressedState.Beginning && !cts.IsCancellationRequested)
+                {
+
+                    if (currentButtonPressState == (byte)ButtonPressedState.End)
+                    {
+                        // While we are not waiting for input, it means we are doing something else so wait
+                        while (_SteamworksData.PhaseValue != (byte)PhaseState.WaitingForInput && !cts.IsCancellationRequested)
+                        {
+                            // If we're in the cutscene phase, press the skip cutscene key
+                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Cutscene && !cts.IsCancellationRequested)
+                            {
+                                StaticHelpers.PressKey(_InputSimulator, (VirtualKeyCode)ConfigurationReader.KeyCutsceneSkip, 100);
+                                Thread.Sleep(100);
+                            }
+                        }
+                    }
+                    // Reread the current button press state
+                    currentButtonPressState = _SteamworksData.InputPressStateCheck;
+                }
+            }
+            catch(Exception e)
+            {
+                throw new Exception("Error in checking steamworks state", e);
+            }
         }
 
         #endregion

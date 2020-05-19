@@ -121,6 +121,10 @@ namespace AutoSteamApp.Helpers
             return retVal;
         }
 
+        /// <summary>
+        /// Generates a random sequence of three key codes
+        /// </summary>
+        /// <returns></returns>
         public static VirtualKeyCode[] RandomSequence()
         {
             VirtualKeyCode[] retVal = new VirtualKeyCode[3];
@@ -147,8 +151,6 @@ namespace AutoSteamApp.Helpers
         /// <param name="delay">The delay to wait between key down and key up.</param>
         public static void PressKey(InputSimulator sim, VirtualKeyCode key, int delay = 0)
         {
-            Log.Message("Pressing: "+key+" with delay: "+delay+" ms");
-
             // Im not sure if thread.sleep eats up allocation etc. resources when called with 0 as an argument
             // So I've decided to skip it if the delay is 0
             if (delay > 0)
