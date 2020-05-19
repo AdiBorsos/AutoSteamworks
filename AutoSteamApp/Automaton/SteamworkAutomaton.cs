@@ -54,8 +54,11 @@ namespace AutoSteamApp.Automaton
             try
             {
                 LoadAndVerifyProcess();
-                _SteamworksData = new SteamworksData(_Process);
-                _SaveData = new SaveData(_Process);
+                if (_SupportedVersion && !ConfigurationReader.RandomRun)
+                {
+                    _SteamworksData = new SteamworksData(_Process);
+                    _SaveData = new SaveData(_Process);
+                }
                 _InputSimulator = new InputSimulator();
             }
             catch (Exception e)
@@ -82,8 +85,15 @@ namespace AutoSteamApp.Automaton
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    CheckSteamworksState(cts);
-                    ExtractAndEnterSequence(cts);
+                    if (_SupportedVersion && !ConfigurationReader.RandomRun)
+                    {
+                        CheckSteamworksState(cts);
+                        ExtractAndEnterSequence(cts);
+                    }
+                    else
+                    {
+                        EnterRandomSequence();
+                    }
                 }
             }
             catch (Exception e)
@@ -93,6 +103,32 @@ namespace AutoSteamApp.Automaton
                 Console.ReadKey();
                 Environment.Exit(1);
             }
+        }
+
+        private void EnterRandomSequence(CancellationToken cts)
+        {
+            // Generate a sequence to input
+            VirtualKeyCode[] sequence;
+            // If the version is unsuported, use a random sequence
+            sequence = StaticHelpers.RandomSequence();
+            // Press the buttons and wait 30ms then press start (in case the cutscene plays)
+            // Press the keys
+            Log.Debug("Random Sequence: [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
+            // Wait until we have focus
+            if (!_Process.HasFocus())
+                Log.Message("Waiting for MHW to have focus.");
+            while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
+
+            StaticHelpers.PressKey(_InputSimulator, sequence[0], ConfigurationReader.RandomInputDelay);
+            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            StaticHelpers.PressKey(_InputSimulator, sequence[1], ConfigurationReader.RandomInputDelay);
+            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            StaticHelpers.PressKey(_InputSimulator, sequence[2], ConfigurationReader.RandomInputDelay);
+            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
+            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.VK_X, ConfigurationReader.RandomInputDelay);
+            return;
         }
 
 
@@ -153,25 +189,10 @@ namespace AutoSteamApp.Automaton
             {
                 // Generate a sequence to input
                 VirtualKeyCode[] sequence;
-                if (_SupportedVersion && !ConfigurationReader.RandomRun)
-                    // If the version is supported, use the extracted sequence
-                    sequence = _SteamworksData.ExtractSequence();
-                else
-                {
-                    // If the version is unsuported, use a random sequence
-                    sequence = StaticHelpers.RandomSequence();
-                    // Press the buttons and wait 30ms then press start (in case the cutscene plays)
-                    // Press the keys
-                    Log.Debug("Random Sequence: [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
-                    StaticHelpers.PressKey(_InputSimulator, sequence[0]);
-                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
-                    StaticHelpers.PressKey(_InputSimulator, sequence[1]);
-                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
-                    StaticHelpers.PressKey(_InputSimulator, sequence[2]);
-                    Thread.Sleep(ConfigurationReader.RandomInputDelay);
-                    StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE);
-                    return;
-                }
+
+                // If the version is supported, use the extracted sequence
+                sequence = _SteamworksData.ExtractSequence();
+
                 if (sequence == null)
                 {
                     Log.Debug("Could not find a valid sequence. Are you sure you are in the game?");
@@ -181,7 +202,7 @@ namespace AutoSteamApp.Automaton
                 // For each key in the sequence
                 for (int i = 0; i < sequence.Length; i++)
                 {
-                    // Record our pre-registered value for input
+                    // Record our pre-registered value for input 
                     byte beforeKeyPressValue = _SteamworksData.InputPressStateCheck;
                     byte afterKeyPressValue = beforeKeyPressValue;
                     // While our input has not been recognized and we haven't been signalled to quit
@@ -198,7 +219,7 @@ namespace AutoSteamApp.Automaton
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception("Error in extracting and entering sequence.", e);
             }
@@ -217,19 +238,19 @@ namespace AutoSteamApp.Automaton
                 // Check the current Button Press Check Value
                 byte currentButtonPressState = _SteamworksData.InputPressStateCheck;
                 // While the current game input state does not signify the beginning of the gamew
-                while (currentButtonPressState != (byte)ButtonPressedState.Beginning && 
+                while (currentButtonPressState != (byte)ButtonPressedState.Beginning &&
                        !cts.IsCancellationRequested)
                 {
 
                     if (currentButtonPressState == (byte)ButtonPressedState.End)
                     {
                         // While we are not waiting for input, it means we are doing something else so wait
-                        while (_SteamworksData.PhaseValue != (byte)PhaseState.WaitingForInput && 
+                        while (_SteamworksData.PhaseValue != (byte)PhaseState.WaitingForInput &&
                                !cts.IsCancellationRequested)
                         {
 
                             // If we're in the cutscene phase, press the skip cutscene key
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Cutscene && 
+                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Cutscene &&
                                    !cts.IsCancellationRequested)
                             {
                                 StaticHelpers.PressKey(_InputSimulator, (VirtualKeyCode)ConfigurationReader.KeyCutsceneSkip, 100);
@@ -237,7 +258,7 @@ namespace AutoSteamApp.Automaton
                             }
 
                             // If the "Press start" is being shown press space
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Fuel && 
+                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Fuel &&
                                    !cts.IsCancellationRequested)
                             {
                                 StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
@@ -245,7 +266,7 @@ namespace AutoSteamApp.Automaton
                             }
 
                             // If the rewards phase is being shown press escape
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Rewards && 
+                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Rewards &&
                                    !cts.IsCancellationRequested)
                             {
                                 StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
@@ -257,7 +278,7 @@ namespace AutoSteamApp.Automaton
                             // to be shown, then exits the minigame, and rejoins it
                             bool cleared = false;
                             while (_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
-                                   _SteamworksData.PhaseValue == (byte)PhaseState.Bonus && 
+                                   _SteamworksData.PhaseValue == (byte)PhaseState.Bonus &&
                                    !cts.IsCancellationRequested)
                             {
                                 // If we've cleared the screen press space to start
@@ -274,7 +295,7 @@ namespace AutoSteamApp.Automaton
                                     // While settled or bonus and in rewards have finished
                                     while ((_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
                                             _SteamworksData.PhaseValue == (byte)PhaseState.Bonus) &&
-                                            _SteamworksData.SecondPhaseValue == 1 && 
+                                            _SteamworksData.SecondPhaseValue == 1 &&
                                             !cts.IsCancellationRequested)
                                     {
                                         StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.LEFT, 100);
@@ -286,7 +307,7 @@ namespace AutoSteamApp.Automaton
                                     // If this doesn't occur, read values think we are waiting to collect our reward still
                                     while (_SteamworksData.PhaseValue != (byte)PhaseState.Idle &&
                                            _SteamworksData.PhaseValue != (byte)PhaseState.Fuel &&
-                                           _SteamworksData.SecondPhaseValue == 0 && 
+                                           _SteamworksData.SecondPhaseValue == 0 &&
                                            !cts.IsCancellationRequested)
                                     {
                                         StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
@@ -313,7 +334,7 @@ namespace AutoSteamApp.Automaton
                     currentButtonPressState = _SteamworksData.InputPressStateCheck;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception("Error in checking steamworks state", e);
             }
