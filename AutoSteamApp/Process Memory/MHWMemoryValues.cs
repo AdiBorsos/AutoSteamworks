@@ -83,6 +83,11 @@ namespace AutoSteamApp.ProcessMemory
         public const ulong OffsetToSteamPhase = 0x57C;
 
         /// <summary>
+        /// Offset to the secondary phase value which determines which phase we're in after winning.
+        /// </summary>
+        public const ulong OffsetToSteamSecondPhase = 0x5C5;
+
+        /// <summary>
         /// Offset from the steamworks data address to the sequence data.
         /// </summary>
         public const ulong OffsetToSequence = 0x350;
