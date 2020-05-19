@@ -32,10 +32,6 @@ namespace AutoSteamApp
              * TODO: Print out some config details to the user for confirmation
              */
 
-            // Wait for user input to signal ready
-            Log.Message("Press Any Key to begin.");
-            Console.ReadKey();
-
             // Create the automaton
             SteamworkAutomaton automaton = new SteamworkAutomaton();
 
@@ -43,7 +39,10 @@ namespace AutoSteamApp
             CancellationTokenSource cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
 
-
+            // Wait for user input to signal ready
+            Log.Message("Press Any Key to begin.");
+            Console.ReadKey();
+            
             // Spawn a task to do the work in a separate thread
             Task t = Task.Run(() => { automaton.Run(token); });
 

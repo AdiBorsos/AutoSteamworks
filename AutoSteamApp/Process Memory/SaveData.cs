@@ -1,6 +1,8 @@
 ﻿using AutoSteamApp.Helpers;
+using Logging;
 using System;
 using System.Diagnostics;
+using System.Threading;
 
 namespace AutoSteamApp.ProcessMemory
 {
@@ -16,9 +18,9 @@ namespace AutoSteamApp.ProcessMemory
         Process MHWProcess;
 
         /// <summary>
-        /// The pointer to the steamworks save data.
+        /// The address of the steamworks save data.
         /// </summary>
-        ulong SteamworksSaveDataPointer;
+        ulong SteamworksSaveDataAddress;
 
         #endregion
 
@@ -31,7 +33,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToNaturalFuel);
+                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToNaturalFuel);
             }
         }
 
@@ -42,7 +44,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToStoredFuel);
+                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToStoredFuel);
             }
         }
 
@@ -53,7 +55,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<short>(MHWProcess, SteamworksSaveDataPointer + MHWMemoryValues.OffsetToSteamGauge);
+                return MemoryHelper.Read<short>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToSteamGauge);
             }
         }
 
@@ -69,8 +71,10 @@ namespace AutoSteamApp.ProcessMemory
         /// <param name="Pointer1Value">The value found in the po</param>
         public SaveData(Process mhwProcess)
         {
+            Log.Debug("Loading Save data values.");
             MHWProcess = mhwProcess;
             LoadData();
+            Log.Debug("Save data values loaded.");
         }
 
         #endregion
@@ -89,9 +93,10 @@ namespace AutoSteamApp.ProcessMemory
             // Get which slot number we are using so we know where to find the current steamworks values
             int slotNumber = GetSlotNumber(SlotDataPointer);
             // The steamworks save data pointer is found in the slot data so first go there.
-            SteamworksSaveDataPointer = MemoryHelper.Read<ulong>(MHWProcess, SlotDataPointer);
+            SteamworksSaveDataAddress = MemoryHelper.Read<ulong>(MHWProcess, SlotDataPointer);
             // Then offset to the proper slot (slot no. * slot size)
-            SteamworksSaveDataPointer += ((ulong)slotNumber * MHWMemoryValues.SlotSize);
+            SteamworksSaveDataAddress += ((ulong)slotNumber * MHWMemoryValues.SlotSize);
+            Log.Debug("Steamworks Save Data Address: " + SteamworksSaveDataAddress);
         }
 
         /// <summary>
@@ -120,12 +125,13 @@ namespace AutoSteamApp.ProcessMemory
                 // Get the playtime from the playtime pointer
                 SlotPlayTimes[slotNumber] = MemoryHelper.Read<int>(MHWProcess, PlayTimePointer);
             }
-
+            Log.Message("Attempting to determine slot: Will attempt for a maximum of " + ConfigurationReader.MaxTimeSlotNumberSeconds + " seconds");
             // I have explicitly duplicated the above code to make it more clear to a reader, rather than
             // Doing it in a more "programmy" way.
             int retVal = -1;
             bool found = false;
             DateTime start = DateTime.Now;
+            int attempts = 0;
             while (!found)
             {
                 // Repeat the same as above until one of the slots changes or cancellation is requested. 
@@ -147,8 +153,14 @@ namespace AutoSteamApp.ProcessMemory
                     {
                         retVal = slotNumber;
                         found = true;
+                        Log.Message("Slot found: " + retVal);
                         break;
                     }
+                    attempts++;
+                    if (attempts % 10 == 0)
+                        Log.Debug("attempt " + attempts + " at determining currently used slot.");
+                    // Sleep while we let the timer run up
+                    Thread.Sleep(1000);
                 }
                 if ((DateTime.Now - start).TotalSeconds > ConfigurationReader.MaxTimeSlotNumberSeconds)
                     throw new TimeoutException("There was an issue determining the currently used slot number.");

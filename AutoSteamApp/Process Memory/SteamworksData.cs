@@ -1,5 +1,6 @@
 ﻿using AutoSteamApp.Helpers;
 using GregsStack.InputSimulatorStandard.Native;
+using Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -39,6 +40,11 @@ namespace AutoSteamApp.ProcessMemory
         ulong PhaseAddress;
 
         /// <summary>
+        /// Address used to read what sub-phase the steamworks is in. When in the bonus or settled phase.
+        /// </summary>
+        ulong SecondPhaseAddress;
+
+        /// <summary>
         /// Address used to read the rarity of the reward.
         /// </summary>
         ulong RarityAddress;
@@ -69,14 +75,24 @@ namespace AutoSteamApp.ProcessMemory
             }
         }
 
+        public byte SecondPhaseValue
+        {
+            get
+            {
+                return MemoryHelper.Read<byte>(MHWProcess, SecondPhaseAddress);
+            }
+        }
+
         #endregion
 
         #region Constructor
 
         public SteamworksData(Process mhwProcess)
         {
+            Log.Debug("Loading Steamworks data values");
             MHWProcess = mhwProcess;
             LoadData();
+            Log.Debug("Steamworks data values loaded.");
         }
 
         #endregion
@@ -90,14 +106,22 @@ namespace AutoSteamApp.ProcessMemory
         {
             // Load the address of the steamworks data
             SteamworksAddress = MemoryHelper.Read<ulong>(MHWProcess, MHWMemoryValues.SteamworksDataPointer);
+            Log.Debug("Steamworks Address: " + SteamworksAddress);
             // Offset to find the sequence address
             SequenceAddress = SteamworksAddress + MHWMemoryValues.OffsetToSequence;
+            Log.Debug("Sequence Address: " + SequenceAddress);
             // Offset to find the button pressed check address
             ButtonPressedCheckAddress = SteamworksAddress + MHWMemoryValues.OffsetToButtonCheck;
+            Log.Debug("Button-Pressed-Check Address: " + ButtonPressedCheckAddress);
             // Offset to find the phase address
             PhaseAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamPhase;
+            Log.Debug("Phase Address: " + PhaseAddress);
+            // Offset to find the secondary phase check address
+            SecondPhaseAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamSecondPhase;
+            Log.Debug("2nd Phase Address: " + SecondPhaseAddress);
             // Offset to find the rarity
             RarityAddress = SteamworksAddress + MHWMemoryValues.OffsetToGameRarity;
+            Log.Debug("Rarity Address: " + RarityAddress);
         }
 
         /// <summary>
@@ -106,7 +130,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <returns>A Tuple </returns>
         public VirtualKeyCode[] ExtractSequence()
         {
-
+            Log.Debug("Extracting Sequence");
             // Read the byte representation of the sequence from the game
             byte[] sequence = new byte[3];
             sequence[0] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress);
@@ -159,6 +183,7 @@ namespace AutoSteamApp.ProcessMemory
     public enum PhaseState
     {
         Idle = 0,
+        Burning = 1,
         Fuel = 2,
         Bonus = 4,
         Settled = 5,

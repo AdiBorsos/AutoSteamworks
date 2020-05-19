@@ -118,6 +118,7 @@ namespace AutoSteamApp.Helpers
 
             VirtualKeyCode[] retVal = dict.OrderBy(x => x.Key).Select(y => y.Value).ToArray();
             // Return the virtual key code values ordered by the index assigned from the byte sequence
+            Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString()))+"]");
             return retVal;
         }
 
