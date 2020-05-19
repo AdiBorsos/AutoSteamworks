@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace AutoSteamApp
 {
-
     class Program
     {
 
@@ -28,9 +27,8 @@ namespace AutoSteamApp
             // Initialize the logger
             StaticHelpers.SetLogger();
 
-            /*
-             * TODO: Print out some config details to the user for confirmation
-             */
+            // Print config settings
+            StaticHelpers.DisplayConfig();
 
             // Create the automaton
             SteamworkAutomaton automaton = new SteamworkAutomaton();

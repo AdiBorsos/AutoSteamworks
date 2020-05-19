@@ -25,6 +25,14 @@ namespace AutoSteamApp.Helpers
         }
 
         /// <summary>
+        /// Logs the current configuration settings to the user
+        /// </summary>
+        public static void DisplayConfig()
+        {
+            Log.Message("Configuration Settings:");
+        }
+
+        /// <summary>
         /// Attempts to load a config file if one is supplied.
         /// </summary>
         /// <param name="args"></param>
@@ -118,7 +126,7 @@ namespace AutoSteamApp.Helpers
 
             VirtualKeyCode[] retVal = dict.OrderBy(x => x.Key).Select(y => y.Value).ToArray();
             // Return the virtual key code values ordered by the index assigned from the byte sequence
-            Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString()))+"]");
+            Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString())) + "]");
             return retVal;
         }
 
