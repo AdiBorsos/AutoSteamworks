@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GregsStack.InputSimulatorStandard.Native;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -66,6 +67,9 @@ namespace AutoSteamApp.Helpers
             }
         }
 
+        /// <summary>
+        /// Absolute path to a log file. If omitted, no logs are saved.
+        /// </summary>
         public static string LogFile
         {
             get
@@ -78,6 +82,9 @@ namespace AutoSteamApp.Helpers
             }
         }
 
+        /// <summary>
+        /// Changes keyboard input to match an azerty keyboard
+        /// </summary>
         public static bool IsAzerty
         {
             get
@@ -88,6 +95,54 @@ namespace AutoSteamApp.Helpers
                         return azerty;
                 }
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Delay used to determine how long to wait between sequences
+        /// </summary>
+        public static int RandomInputDelay
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenCombo"))
+                {
+                    if (int.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out int delay))
+                        return delay;
+                }
+                return 50;
+            }
+        }
+
+        /// <summary>
+        /// key used to skip cutscenes
+        /// </summary>
+        public static VirtualKeyCode KeyCutsceneSkip
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
+                {
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int keycode))
+                    {
+                        try
+                        {
+                            VirtualKeyCode key = (VirtualKeyCode)keycode;
+
+                            return key;
+                        }
+                        catch (Exception ex)
+                        {
+                            return VirtualKeyCode.VK_X;
+                        }
+                    }
+                    return VirtualKeyCode.VK_X;
+                }
+                else
+                {
+                    return VirtualKeyCode.VK_X;
+                }
+
             }
         }
 

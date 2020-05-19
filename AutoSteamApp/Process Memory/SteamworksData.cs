@@ -158,11 +158,13 @@ namespace AutoSteamApp.ProcessMemory
     /// </summary>
     public enum PhaseState
     {
+        Idle = 0,
         Fuel = 2,
         Bonus = 4,
         Settled = 5,
         WaitingForInput = 8,
-        Cutscene = 12
+        Cutscene = 12,
+        Rewards = 13,
     }
 
 }
