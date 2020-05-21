@@ -207,6 +207,48 @@ namespace AutoSteamApp.Configuration
         }
         static bool? _RandomRun = null;
 
+        /// <summary>
+        /// The probability to input the correct sequence on a common reward
+        /// </summary>
+        public static float CommonSuccessRate
+        {
+            get
+            {
+                if (_RandomRun.HasValue)
+                    return _CommonSuccessRate.Value;
+
+                _CommonSuccessRate = ConfigurationDefaults.DefaultCommonSuccessRate;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "CommonSuccessRate"))
+                    if (float.TryParse(ConfigurationManager.AppSettings["CommonSuccessRate"].Trim(), out float success))
+                        _CommonSuccessRate = success;
+
+                return _CommonSuccessRate.Value;
+            }
+        }
+        static float? _CommonSuccessRate = null;
+
+        /// <summary>
+        /// The probability to input the correct sequence on a rare reward
+        /// </summary>
+        public static float RareSuccessRate
+        {
+            get
+            {
+                if (_RandomRun.HasValue)
+                    return _RareSuccessRate.Value;
+
+                _RareSuccessRate = ConfigurationDefaults.DefaultRareSuccessRate;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RareSuccessRate"))
+                    if (float.TryParse(ConfigurationManager.AppSettings["RareSuccessRate"].Trim(), out float success))
+                        _RareSuccessRate = success;
+
+                return _RareSuccessRate.Value;
+            }
+        }
+        static float? _RareSuccessRate = null;
+
         #endregion
 
     }
