@@ -181,7 +181,6 @@ namespace AutoSteamApp.Configuration
                         }
 
                 return _KeyCutsceneSkip.Value;
-
             }
         }
         static VirtualKeyCode? _KeyCutsceneSkip = null;

@@ -88,8 +88,8 @@ namespace AutoSteamApp.Automaton
                 {
                     if (_SupportedVersion && !ConfigurationReader.RandomRun)
                     {
-                        CheckSteamworksState(cts);
                         ExtractAndEnterSequence(cts);
+                        CheckSteamworksState(cts);
                     }
                     else
                     {
@@ -259,101 +259,30 @@ namespace AutoSteamApp.Automaton
             {
                 // Check the current Button Press Check Value
                 byte currentButtonPressState = _SteamworksData.InputPressStateCheck;
-                // While the current game input state does not signify the beginning of the gamew
+                // While we are not in the input mode
                 while (currentButtonPressState != (byte)ButtonPressedState.Beginning &&
                        !cts.IsCancellationRequested)
                 {
+                    // Sleep so the animation plays a bit
+                    Thread.Sleep(50);
+                    // Then press skip cutscene with a minor delay
+                    StaticHelpers.PressKey(_InputSimulator, ConfigurationReader.KeyCutsceneSkip, ConfigurationReader.RandomInputDelay);
 
+                    // If the cutscene is over
                     if (currentButtonPressState == (byte)ButtonPressedState.End)
                     {
-                        // While we are not waiting for input, it means we are doing something else so wait
-                        while (_SteamworksData.PhaseValue != (byte)PhaseState.WaitingForInput &&
-                               !cts.IsCancellationRequested)
-                        {
-
-                            // If we're in the cutscene phase, press the skip cutscene key
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Cutscene &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, (VirtualKeyCode)ConfigurationReader.KeyCutsceneSkip, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // If the "Press start" is being shown press space
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Fuel &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // If the rewards phase is being shown press escape
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Rewards &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // While in the bonus or settled phase
-                            // What this stage essentially does is upon winning, waits for all the rewards
-                            // to be shown, then exits the minigame, and rejoins it
-                            bool cleared = false;
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
-                                   _SteamworksData.PhaseValue == (byte)PhaseState.Bonus &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                // If we've cleared the screen press space to start
-                                if (cleared)
-                                {
-                                    StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                    Thread.Sleep(100);
-                                }
-
-                                // Otherwise we exit out of the menu, and replay the game. Refer to https://github.com/UNOWEN-OwO
-                                // Here we need to refer to the second phase check because the game is technically over.
-                                else
-                                {
-                                    // While settled or bonus and in rewards have finished
-                                    while ((_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
-                                            _SteamworksData.PhaseValue == (byte)PhaseState.Bonus) &&
-                                            _SteamworksData.SecondPhaseValue == 1 &&
-                                            !cts.IsCancellationRequested)
-                                    {
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.LEFT, 100);
-                                        Thread.Sleep(1000);
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                        Thread.Sleep(1000);
-                                    }
-                                    // This escape command resets the timing properly after winning.
-                                    // If this doesn't occur, read values think we are waiting to collect our reward still
-                                    while (_SteamworksData.PhaseValue != (byte)PhaseState.Idle &&
-                                           _SteamworksData.PhaseValue != (byte)PhaseState.Fuel &&
-                                           _SteamworksData.SecondPhaseValue == 0 &&
-                                           !cts.IsCancellationRequested)
-                                    {
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
-                                        Thread.Sleep(1000);
-                                    }
-                                }
-                            }
-
-                            // If we're in idle phase, press the space button three times
-                            // No ide why this is needed. Refer to https://github.com/UNOWEN-OwO
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Idle)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(1000);
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(500);
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(100);
-                                cleared = true;
-                            }
-                        }
+                        // When the steam gauge has reset, it means we can press space to start again.
+                        if (_SteamworksData.SteamGuageValue == 0)
+                            StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
                     }
                     // Reread the current button press state
                     currentButtonPressState = _SteamworksData.InputPressStateCheck;
+
+                    // Wait until we have focus
+                    if (!_Process.HasFocus())
+                        Log.Message("Waiting for MHW to have focus.");
+                    while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
+
                 }
             }
             catch (Exception e)
