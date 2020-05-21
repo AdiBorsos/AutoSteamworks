@@ -1,4 +1,5 @@
-﻿using AutoSteamApp.ProcessMemory;
+﻿using AutoSteamApp.Configuration;
+using AutoSteamApp.ProcessMemory;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
 using Logging;
@@ -25,21 +26,30 @@ namespace AutoSteamApp.Helpers
         }
 
         /// <summary>
-        /// Attempts to load a config file if one is supplied.
+        /// Logs the current configuration settings to the user
         /// </summary>
-        /// <param name="args"></param>
-        public static void SetConfig(string config)
+        public static void DisplayConfig()
         {
-            // Set the configuration file to the specified path defined in the cmd line args
-            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = config;
+            Log.Message("Configuration Settings:");
+            Log.Message("\tApplication Version: " + ConfigurationReader.ApplicationVersion);
+            Log.Message("\tIs Debug: " + ConfigurationReader.IsDebug);
 
-            // If an incorrect config file is loaded, exit the application
             if (!ConfigurationReader.ConfigLoadedProperly)
             {
-                Console.WriteLine("Defined config file could not be found. Defaulting to original.");
-                AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
+                Log.Warning("Config file was unable to load.");
+                return;
             }
+            Log.Message("\tIs Azerty: " + ConfigurationReader.IsAzerty);
+            Log.Message("\tLog File: " + (ConfigurationReader.LogFile ?? "Not supplied") );
+            Log.Message("\tRandom Run: " + ConfigurationReader.RandomRun);
+            Log.Message("\tInput Delay on Random Run: " + ConfigurationReader.RandomInputDelay);
+            Log.Message("\tCutscene skip key: " + ConfigurationReader.KeyCutsceneSkip.ToString());
+            Log.Message("\tCommon Reward Success Rate: " + ConfigurationReader.CommonSuccessRate.ToString("#.##"));
+            Log.Message("\tRare Reward Success Rate: " + ConfigurationReader.RareSuccessRate.ToString("#.##"));
+            Log.Message("\tMaximum Wait for Determining Slot: " + ConfigurationReader.MaxTimeSlotNumberSeconds);
+            Log.Message("");
         }
+
 
         /// <summary>
         /// Sets the proper log methods depending on the configuration found in the .config file
@@ -75,7 +85,7 @@ namespace AutoSteamApp.Helpers
                 }
                 // If no log file is specified, log to console instead
                 Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
-                Log.Warning("No log file specified. All logs written to console.");
+                //Log.Warning("No log file specified. All logs written to console.");
                 return;
             }
             // If not in debug mode, write messages to console
@@ -118,7 +128,7 @@ namespace AutoSteamApp.Helpers
 
             VirtualKeyCode[] retVal = dict.OrderBy(x => x.Key).Select(y => y.Value).ToArray();
             // Return the virtual key code values ordered by the index assigned from the byte sequence
-            Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString()))+"]");
+            Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString())) + "]");
             return retVal;
         }
 

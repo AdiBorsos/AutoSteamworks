@@ -1,4 +1,5 @@
 ﻿using AutoSteamApp.Automaton;
+using AutoSteamApp.Configuration;
 using AutoSteamApp.Helpers;
 using Logging;
 using System;
@@ -7,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace AutoSteamApp
 {
-
     class Program
     {
 
@@ -19,7 +19,7 @@ namespace AutoSteamApp
             // Attempts to load an external config file if one is supplied
             if (args.Length > 0)
             {
-                StaticHelpers.SetConfig(args[0]);
+                ConfigurationReader.LoadConfig(args[0]);
             }
 
             // Set the console title
@@ -28,9 +28,8 @@ namespace AutoSteamApp
             // Initialize the logger
             StaticHelpers.SetLogger();
 
-            /*
-             * TODO: Print out some config details to the user for confirmation
-             */
+            // Print config settings
+            StaticHelpers.DisplayConfig();
 
             // Create the automaton
             SteamworkAutomaton automaton = new SteamworkAutomaton();
