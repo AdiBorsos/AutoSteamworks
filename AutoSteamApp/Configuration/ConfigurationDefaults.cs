@@ -27,11 +27,12 @@ namespace AutoSteamApp.Configuration
         /// <summary>
         /// What is the keycode used to skip cutscenes?
         /// </summary>
-        public const VirtualKeyCode KeyCutsceneSkip = VirtualKeyCode.VK_X;
+        public const VirtualKeyCode DefaultKeyCutsceneSkip = VirtualKeyCode.VK_X;
 
         /// <summary>
         /// Are we inputting random values?
         /// </summary>
-        public const bool RandomRun = false;
+        public const bool DefaultRandomRun = false;
+
     }
 }

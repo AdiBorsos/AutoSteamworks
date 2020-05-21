@@ -167,7 +167,7 @@ namespace AutoSteamApp.Configuration
                 if (_KeyCutsceneSkip.HasValue)
                     return _KeyCutsceneSkip.Value;
 
-                _KeyCutsceneSkip = ConfigurationDefaults.KeyCutsceneSkip;
+                _KeyCutsceneSkip = ConfigurationDefaults.DefaultKeyCutsceneSkip;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
                     if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int keycode))
@@ -196,7 +196,7 @@ namespace AutoSteamApp.Configuration
                 if (_RandomRun.HasValue)
                     return _RandomRun.Value;
 
-                _RandomRun = ConfigurationDefaults.RandomRun;
+                _RandomRun = ConfigurationDefaults.DefaultRandomRun;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RandomRun"))
                     if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool random))
