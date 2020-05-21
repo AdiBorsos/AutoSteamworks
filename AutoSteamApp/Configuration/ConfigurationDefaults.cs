@@ -44,5 +44,9 @@ namespace AutoSteamApp.Configuration
         /// </summary>
         public const float DefaultRareSuccessRate = 1f;
 
+        /// <summary>
+        /// How long do we wait for the slot to be identified before exiting?
+        /// </summary>
+        public const int DefaultMaxTimeSlotNumberSeconds = 30;
     }
 }

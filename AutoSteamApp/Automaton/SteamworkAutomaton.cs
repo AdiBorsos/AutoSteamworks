@@ -1,4 +1,5 @@
-﻿using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Configuration;
+using AutoSteamApp.Helpers;
 using AutoSteamApp.ProcessMemory;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;

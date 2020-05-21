@@ -249,6 +249,27 @@ namespace AutoSteamApp.Configuration
         }
         static float? _RareSuccessRate = null;
 
+        /// <summary>
+        /// The time in seconds to wait to identify the currently used slot before exiting.
+        /// </summary>
+        public static int MaxTimeSlotNumberSeconds
+        {
+            get
+            {
+                if (_RandomRun.HasValue)
+                    return _MaxTimeSlotNumberSeconds.Value;
+
+                _MaxTimeSlotNumberSeconds = ConfigurationDefaults.DefaultMaxTimeSlotNumberSeconds;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "MaxTimeSlotNumberSeconds"))
+                    if (int.TryParse(ConfigurationManager.AppSettings["MaxTimeSlotNumberSeconds"].Trim(), out int success))
+                        _MaxTimeSlotNumberSeconds = success;
+
+                return _MaxTimeSlotNumberSeconds.Value;
+            }
+        }
+        static int? _MaxTimeSlotNumberSeconds = null;
+
         #endregion
 
     }
