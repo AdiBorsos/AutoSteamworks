@@ -214,7 +214,7 @@ namespace AutoSteamApp.Configuration
         {
             get
             {
-                if (_RandomRun.HasValue)
+                if (_CommonSuccessRate.HasValue)
                     return _CommonSuccessRate.Value;
 
                 _CommonSuccessRate = ConfigurationDefaults.DefaultCommonSuccessRate;
@@ -235,7 +235,7 @@ namespace AutoSteamApp.Configuration
         {
             get
             {
-                if (_RandomRun.HasValue)
+                if (_RareSuccessRate.HasValue)
                     return _RareSuccessRate.Value;
 
                 _RareSuccessRate = ConfigurationDefaults.DefaultRareSuccessRate;
@@ -256,7 +256,7 @@ namespace AutoSteamApp.Configuration
         {
             get
             {
-                if (_RandomRun.HasValue)
+                if (_MaxTimeSlotNumberSeconds.HasValue)
                     return _MaxTimeSlotNumberSeconds.Value;
 
                 _MaxTimeSlotNumberSeconds = ConfigurationDefaults.DefaultMaxTimeSlotNumberSeconds;

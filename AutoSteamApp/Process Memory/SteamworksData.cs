@@ -65,7 +65,7 @@ namespace AutoSteamApp.ProcessMemory
         }
 
         /// <summary>
-        /// Address used to read what phase the steamworks is in. 
+        /// what phase the steamworks is in. 
         /// </summary>
         public byte PhaseValue
         {
@@ -75,11 +75,25 @@ namespace AutoSteamApp.ProcessMemory
             }
         }
 
+        /// <summary>
+        /// what phase the steamworks is in when in the main menu of the steamworks
+        /// </summary>
         public byte SecondPhaseValue
         {
             get
             {
                 return MemoryHelper.Read<byte>(MHWProcess, SecondPhaseAddress);
+            }
+        }
+
+        /// <summary>
+        /// what phase the steamworks is in when in the main menu of the steamworks
+        /// </summary>
+        public RewardRarity RewardRarityValue
+        {
+            get
+            {
+                return (RewardRarity)MemoryHelper.Read<byte>(MHWProcess, RarityAddress);
             }
         }
 
@@ -190,6 +204,15 @@ namespace AutoSteamApp.ProcessMemory
         WaitingForInput = 8,
         Cutscene = 12,
         Rewards = 13,
+    }
+
+    /// <summary>
+    /// The rarity of the reward of the steamworks
+    /// </summary>
+    public enum RewardRarity
+    {
+        Common = 0,
+        Rare = 1
     }
 
 }

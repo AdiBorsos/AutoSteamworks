@@ -200,6 +200,27 @@ namespace AutoSteamApp.Automaton
                     Thread.Sleep(1000);
                     return;
                 }
+
+                //Here we need to check the probability of us winning based on the rarity of the reward
+                float probability = ConfigurationReader.CommonSuccessRate;
+                if (_SteamworksData.RewardRarityValue == RewardRarity.Rare)
+                {
+                    Log.Debug("Rare reward detected.");
+                    probability = ConfigurationReader.RareSuccessRate;
+                }
+
+                // Use rng to check if we win or not
+                // TODO: maybe not create a new instance every time? I'll need to consult with someone about the probability distribution
+                // when doing it this way.
+                Random rng = new Random();
+
+                // If we fail the rng check, reverse the inputs
+                if (rng.NextDouble() > probability)
+                {
+                    Log.Debug("Failed rng check. reversing sequence to guarantee incorrect input.");
+                    sequence = sequence.Reverse().ToArray();
+                }
+
                 // For each key in the sequence
                 for (int i = 0; i < sequence.Length; i++)
                 {

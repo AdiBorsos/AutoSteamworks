@@ -44,6 +44,10 @@ namespace AutoSteamApp.Helpers
             Log.Message("\tRandom Run: " + ConfigurationReader.RandomRun);
             Log.Message("\tInput Delay on Random Run: " + ConfigurationReader.RandomInputDelay);
             Log.Message("\tCutscene skip key: " + ConfigurationReader.KeyCutsceneSkip.ToString());
+            Log.Message("\tCommon Reward Success Rate: " + ConfigurationReader.CommonSuccessRate.ToString("#.##"));
+            Log.Message("\tRare Reward Success Rate: " + ConfigurationReader.RareSuccessRate.ToString("#.##"));
+            Log.Message("\tMaximum Wait for Determining Slot: " + ConfigurationReader.MaxTimeSlotNumberSeconds);
+            Log.Message("");
         }
 
 
@@ -81,7 +85,7 @@ namespace AutoSteamApp.Helpers
                 }
                 // If no log file is specified, log to console instead
                 Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
-                Log.Warning("No log file specified. All logs written to console.");
+                //Log.Warning("No log file specified. All logs written to console.");
                 return;
             }
             // If not in debug mode, write messages to console
