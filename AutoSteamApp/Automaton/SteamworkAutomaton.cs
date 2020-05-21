@@ -217,8 +217,10 @@ namespace AutoSteamApp.Automaton
                 // If we fail the rng check, reverse the inputs
                 if (rng.NextDouble() > probability)
                 {
-                    Log.Debug("Failed rng check. reversing sequence to guarantee incorrect input.");
-                    sequence = sequence.Reverse().ToArray();
+                    Log.Debug("Failed rng check. shifting sequence to guarantee incorrect input.");
+                    sequence = new VirtualKeyCode[] { sequence[1], sequence[2], sequence[0] };
+                    // Sometimes the input being shifted doesnt change the input?
+                    Thread.Sleep(50);
                 }
 
                 // For each key in the sequence
