@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GregsStack.InputSimulatorStandard.Native;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,29 @@ namespace AutoSteamApp.Configuration
 {
     public static class ConfigurationDefaults
     {
+        /// <summary>
+        /// Is the program by default in debug mode?
+        /// </summary>
+        public const bool DefaultIsDebug = false;
 
+        /// <summary>
+        /// Is the default keyboard layout azerty?
+        /// </summary>
+        public const bool DefaultIsAzerty = false;
+
+        /// <summary>
+        /// What is the default delay between inputs when doing a random input sequence?
+        /// </summary>
+        public const int DefaultRandomInputDelay = 50;
+
+        /// <summary>
+        /// What is the keycode used to skip cutscenes?
+        /// </summary>
+        public const VirtualKeyCode KeyCutsceneSkip = VirtualKeyCode.VK_X;
+
+        /// <summary>
+        /// Are we inputting random values?
+        /// </summary>
+        public const bool RandomRun = false;
     }
 }

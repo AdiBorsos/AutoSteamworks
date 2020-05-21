@@ -60,7 +60,7 @@ namespace AutoSteamApp.Configuration
                 if (_IsDebug.HasValue)
                     return _IsDebug.Value;
 
-                _IsDebug = false;
+                _IsDebug = ConfigurationDefaults.DefaultIsDebug;
 #if DEBUG
                 _IsDebug = true;
 #endif
@@ -103,12 +103,11 @@ namespace AutoSteamApp.Configuration
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "LogFile"))
                 {
                     string retVal = ConfigurationManager.AppSettings["LogFile"].Trim();
-                    if (string.IsNullOrEmpty(retVal))
-                        return null;
-                    _LogFile = retVal;
-                    return _LogFile;
+                    if (!string.IsNullOrEmpty(retVal))
+                        _LogFile = retVal;
                 }
-                return null;
+
+                return _LogFile;
             }
         }
         static string _LogFile = null;
@@ -123,7 +122,7 @@ namespace AutoSteamApp.Configuration
                 if (_IsAzerty.HasValue)
                     return _IsAzerty.Value;
 
-                _IsAzerty = false;
+                _IsAzerty = ConfigurationDefaults.DefaultIsAzerty;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsAzerty"))
                 {
@@ -145,7 +144,7 @@ namespace AutoSteamApp.Configuration
                 if (_RandomInputDelay.HasValue)
                     return _RandomInputDelay.Value;
 
-                _RandomInputDelay = 50;
+                _RandomInputDelay = ConfigurationDefaults.DefaultRandomInputDelay;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenCombo"))
                 {
@@ -168,7 +167,7 @@ namespace AutoSteamApp.Configuration
                 if (_KeyCutsceneSkip.HasValue)
                     return _KeyCutsceneSkip.Value;
 
-                _KeyCutsceneSkip = VirtualKeyCode.VK_X;
+                _KeyCutsceneSkip = ConfigurationDefaults.KeyCutsceneSkip;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
                     if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int keycode))
@@ -197,7 +196,7 @@ namespace AutoSteamApp.Configuration
                 if (_RandomRun.HasValue)
                     return _RandomRun.Value;
 
-                _RandomRun = false;
+                _RandomRun = ConfigurationDefaults.RandomRun;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RandomRun"))
                     if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool random))
