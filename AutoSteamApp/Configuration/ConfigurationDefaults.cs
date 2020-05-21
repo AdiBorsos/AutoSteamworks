@@ -34,5 +34,15 @@ namespace AutoSteamApp.Configuration
         /// </summary>
         public const bool DefaultRandomRun = false;
 
+        /// <summary>
+        /// What is the probability of winning a common reward
+        /// </summary>
+        public const float DefaultCommonSuccessRate = 1f;
+
+        /// <summary>
+        /// What is the probability of winning a rare reward
+        /// </summary>
+        public const float DefaultRareSuccessRate = 1f;
+
     }
 }
