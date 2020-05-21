@@ -19,7 +19,7 @@ namespace AutoSteamApp
             // Attempts to load an external config file if one is supplied
             if (args.Length > 0)
             {
-                StaticHelpers.SetConfig(args[0]);
+                ConfigurationReader.LoadConfig(args[0]);
             }
 
             // Set the console title

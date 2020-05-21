@@ -46,22 +46,6 @@ namespace AutoSteamApp.Helpers
             Log.Message("\tCutscene skip key: " + ConfigurationReader.KeyCutsceneSkip.ToString());
         }
 
-        /// <summary>
-        /// Attempts to load a config file if one is supplied.
-        /// </summary>
-        /// <param name="args"></param>
-        public static void SetConfig(string config)
-        {
-            // Set the configuration file to the specified path defined in the cmd line args
-            AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = config;
-
-            // If an incorrect config file is loaded, exit the application
-            if (!ConfigurationReader.ConfigLoadedProperly)
-            {
-                Console.WriteLine("Defined config file could not be found. Defaulting to original.");
-                AppDomain.CurrentDomain.SetupInformation.ConfigurationFile = ".config";
-            }
-        }
 
         /// <summary>
         /// Sets the proper log methods depending on the configuration found in the .config file
