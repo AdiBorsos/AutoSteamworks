@@ -7,19 +7,25 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AutoSteamApp.Helpers
+namespace AutoSteamApp.Configuration
 {
     public static class ConfigurationReader
     {
 
-        #region Constant parameters
-
         /// <summary>
-        /// The maximum number of seconds the save data will attempt to find a slot before throwing an exception
+        /// Method for loading a config file
         /// </summary>
-        public const double MaxTimeSlotNumberSeconds = 30;
-
-        #endregion
+        /// <param name="configLocation"></param>
+        public static void LoadConfig(string configLocation = null)
+        {
+            if (configLocation != null)
+            {
+                System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                config.AppSettings.File = configLocation;
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
+            }
+        }
 
         #region Dynamic parameters
 
@@ -30,9 +36,16 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
-                return (ConfigurationManager.AppSettings.AllKeys.Length > 0);
+                // If we have already read the value once
+                if (_ConfigLoadedProperly.HasValue)
+                    return _ConfigLoadedProperly.Value;
+
+                // Value is determined by the fact of any keys being loaded
+                _ConfigLoadedProperly = ConfigurationManager.AppSettings.AllKeys.Length > 0;
+                return _ConfigLoadedProperly.Value;
             }
         }
+        static bool? _ConfigLoadedProperly = null;
 
         /// <summary>
         /// Returns whether or not the application is being run in debug mode.
@@ -43,18 +56,23 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
-                bool AssemblyDebug = false;
+
+                if (_IsDebug.HasValue)
+                    return _IsDebug.Value;
+
+                _IsDebug = false;
 #if DEBUG
-                AssemblyDebug = true;
+                _IsDebug = true;
 #endif
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "Debug"))
                 {
                     if (bool.TryParse(ConfigurationManager.AppSettings["Debug"].Trim(), out bool ConfigDebug))
-                        AssemblyDebug |= ConfigDebug;
+                        _IsDebug |= ConfigDebug;
                 }
-                return AssemblyDebug;
+                return _IsDebug.Value;
             }
         }
+        static bool? _IsDebug = null;
 
         /// <summary>
         /// Returns the Version of the assembly.
@@ -63,9 +81,14 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version;
+                if (_ApplicationVersion != null)
+                    return _ApplicationVersion;
+
+                _ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                return _ApplicationVersion;
             }
         }
+        static Version _ApplicationVersion = null;
 
         /// <summary>
         /// Absolute path to a log file. If omitted, no logs are saved.
@@ -74,16 +97,21 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
+                if (!string.IsNullOrEmpty(_LogFile))
+                    return _LogFile;
+
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "LogFile"))
                 {
                     string retVal = ConfigurationManager.AppSettings["LogFile"].Trim();
                     if (string.IsNullOrEmpty(retVal))
                         return null;
-                    return retVal;
+                    _LogFile = retVal;
+                    return _LogFile;
                 }
                 return null;
             }
         }
+        static string _LogFile = null;
 
         /// <summary>
         /// Changes keyboard input to match an azerty keyboard
@@ -92,14 +120,20 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
+                if (_IsAzerty.HasValue)
+                    return _IsAzerty.Value;
+
+                _IsAzerty = false;
+
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsAzerty"))
                 {
                     if (bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"].Trim(), out bool azerty))
-                        return azerty;
+                        _IsAzerty = azerty;
                 }
-                return false;
+                return _IsAzerty.Value;
             }
         }
+        static bool? _IsAzerty = null;
 
         /// <summary>
         /// Delay used to determine how long to wait between sequences
@@ -108,15 +142,20 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
+                if (_RandomInputDelay.HasValue)
+                    return _RandomInputDelay.Value;
+
+                _RandomInputDelay = 50;
+
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenCombo"))
                 {
                     if (int.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out int delay))
-                        return delay;
-                    return 50;
+                        _RandomInputDelay = delay;
                 }
-                return 50;
+                return _RandomInputDelay.Value;
             }
         }
+        static int? _RandomInputDelay = null;
 
         /// <summary>
         /// key used to skip cutscenes
@@ -125,30 +164,28 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
+
+                if (_KeyCutsceneSkip.HasValue)
+                    return _KeyCutsceneSkip.Value;
+
+                _KeyCutsceneSkip = VirtualKeyCode.VK_X;
+
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
-                {
                     if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int keycode))
-                    {
                         try
                         {
                             VirtualKeyCode key = (VirtualKeyCode)keycode;
-
-                            return key;
+                            _KeyCutsceneSkip = key;
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            return VirtualKeyCode.VK_X;
                         }
-                    }
-                    return VirtualKeyCode.VK_X;
-                }
-                else
-                {
-                    return VirtualKeyCode.VK_X;
-                }
+
+                return _KeyCutsceneSkip.Value;
 
             }
         }
+        static VirtualKeyCode? _KeyCutsceneSkip = null;
 
         /// <summary>
         /// Sets if the values should be random
@@ -157,15 +194,19 @@ namespace AutoSteamApp.Helpers
         {
             get
             {
+                if (_RandomRun.HasValue)
+                    return _RandomRun.Value;
+
+                _RandomRun = false;
+
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RandomRun"))
-                {
-                    if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool azerty))
-                        return azerty;
-                    return false;
-                }
-                return false;
+                    if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool random))
+                        _RandomRun = random;
+
+                return _RandomRun.Value;
             }
         }
+        static bool? _RandomRun = null;
 
         #endregion
 

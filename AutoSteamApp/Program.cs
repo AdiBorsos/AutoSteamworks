@@ -1,4 +1,5 @@
 ﻿using AutoSteamApp.Automaton;
+using AutoSteamApp.Configuration;
 using AutoSteamApp.Helpers;
 using Logging;
 using System;
