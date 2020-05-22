@@ -1,4 +1,5 @@
-﻿using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Configuration;
+using AutoSteamApp.Helpers;
 using Logging;
 using System;
 using System.Diagnostics;
@@ -40,7 +41,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The integer value of the amount of stored fuel the player has left.
         /// </summary>
-        public int StoredFuel
+        public int StoredFuelLeft
         {
             get
             {

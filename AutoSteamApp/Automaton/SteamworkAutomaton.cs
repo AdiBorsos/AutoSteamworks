@@ -1,4 +1,5 @@
-﻿using AutoSteamApp.Helpers;
+﻿using AutoSteamApp.Configuration;
+using AutoSteamApp.Helpers;
 using AutoSteamApp.ProcessMemory;
 using GregsStack.InputSimulatorStandard;
 using GregsStack.InputSimulatorStandard.Native;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace AutoSteamApp.Automaton
 {
@@ -64,9 +66,14 @@ namespace AutoSteamApp.Automaton
             catch (Exception e)
             {
                 Log.Exception(new Exception("Failed to initialze Steamworks Automaton\n\t", e));
-                Log.Warning("Something went wrong reading the MHW:IB process. Press any key to exit");
-                Console.ReadKey();
-                Environment.Exit(1);
+                Log.Warning("Something went wrong reading the MHW:IB process.");
+                if (!ConfigurationReader.ShouldAutoQuit)
+                {
+                    Log.Message("Press any key to exit.");
+                    Console.ReadKey();
+                }
+                Environment.Exit(-1);
+
             }
         }
 
@@ -87,21 +94,37 @@ namespace AutoSteamApp.Automaton
                 {
                     if (_SupportedVersion && !ConfigurationReader.RandomRun)
                     {
-                        CheckSteamworksState(cts);
+                        // If we have satisfied all exit conditions
+                        if (CheckForExitCondition())
+                            // If we should auto exit, quit immediately
+                            if (ConfigurationReader.ShouldAutoQuit)
+                                Environment.Exit(0);
+                            // Otherwise wait for quit to be typed
+                            else
+                                return;
+
+                        // Otherwise we need to extract the sequence
                         ExtractAndEnterSequence(cts);
+
+                        // Then check the steamworks state
+                        CheckSteamworksState(cts);
                     }
                     else
                     {
-                        EnterRandomSequence();
+                        EnterRandomSequence(cts);
                     }
                 }
             }
             catch (Exception e)
             {
                 Log.Exception(new Exception("Failed automating steamworks\n\t", e));
-                Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
-                Console.ReadKey();
-                Environment.Exit(1);
+                Log.Warning("Something went wrong trying to automate the steamworks.");
+                // If we should auto exit, quit immediately
+                if (ConfigurationReader.ShouldAutoQuit)
+                    Environment.Exit(-1);
+                // Otherwise wait for quit to be typed
+                else
+                    return;
             }
         }
 
@@ -119,22 +142,48 @@ namespace AutoSteamApp.Automaton
                 Log.Message("Waiting for MHW to have focus.");
             while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
 
-            StaticHelpers.PressKey(_InputSimulator, sequence[0], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
-            StaticHelpers.PressKey(_InputSimulator, sequence[1], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
-            StaticHelpers.PressKey(_InputSimulator, sequence[2], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                StaticHelpers.PressKey(_InputSimulator, sequence[i], ConfigurationReader.RandomInputDelay);
+                Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            }
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
             Thread.Sleep(ConfigurationReader.RandomInputDelay);
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.VK_X, ConfigurationReader.RandomInputDelay);
-            return;
         }
 
 
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// Checks if we have met the satisfying conditions provided by the config file.
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckForExitCondition()
+        {
+            if (ConfigurationReader.OnlyUseNaturalFuel)
+            {
+                // true if we have either equal to or less fuel than specified in the config file.
+                if (_SaveData.NaturalFuelLeft <= ConfigurationReader.StopAtFuelAmount)
+                {
+                    Log.Message("Hit minimum natural fuel reserve.");
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                // true if we have either equal to or less fuel than specified in the config file.
+                if (_SaveData.StoredFuelLeft <= ConfigurationReader.StopAtFuelAmount)
+                {
+                    Log.Message("Hit minimum stored fuel reserve.");
+                    return true;
+                }
+                return false;
+            }
+        }
 
         /// <summary>
         /// Loads and verifies the current MHW:IB process against the currently supported version.
@@ -199,6 +248,29 @@ namespace AutoSteamApp.Automaton
                     Thread.Sleep(1000);
                     return;
                 }
+
+                //Here we need to check the probability of us winning based on the rarity of the reward
+                float probability = ConfigurationReader.CommonSuccessRate;
+                if (_SteamworksData.RewardRarityValue == RewardRarity.Rare)
+                {
+                    Log.Debug("Rare reward detected.");
+                    probability = ConfigurationReader.RareSuccessRate;
+                }
+
+                // Use rng to check if we win or not
+                // TODO: maybe not create a new instance every time? I'll need to consult with someone about the probability distribution
+                // when doing it this way.
+                Random rng = new Random();
+
+                // If we fail the rng check, reverse the inputs
+                if (rng.NextDouble() > probability)
+                {
+                    Log.Debug("Failed rng check. shifting sequence to guarantee incorrect input.");
+                    sequence = new VirtualKeyCode[] { sequence[1], sequence[2], sequence[0] };
+                    // Sometimes the input being shifted doesnt change the input?
+                    Thread.Sleep(50);
+                }
+
                 // For each key in the sequence
                 for (int i = 0; i < sequence.Length; i++)
                 {
@@ -237,101 +309,30 @@ namespace AutoSteamApp.Automaton
             {
                 // Check the current Button Press Check Value
                 byte currentButtonPressState = _SteamworksData.InputPressStateCheck;
-                // While the current game input state does not signify the beginning of the gamew
+                // While we are not in the input mode
                 while (currentButtonPressState != (byte)ButtonPressedState.Beginning &&
                        !cts.IsCancellationRequested)
                 {
+                    // Sleep so the animation plays a bit
+                    Thread.Sleep(50);
+                    // Then press skip cutscene with a minor delay
+                    StaticHelpers.PressKey(_InputSimulator, ConfigurationReader.KeyCutsceneSkip, ConfigurationReader.RandomInputDelay);
 
+                    // If the cutscene is over
                     if (currentButtonPressState == (byte)ButtonPressedState.End)
                     {
-                        // While we are not waiting for input, it means we are doing something else so wait
-                        while (_SteamworksData.PhaseValue != (byte)PhaseState.WaitingForInput &&
-                               !cts.IsCancellationRequested)
-                        {
-
-                            // If we're in the cutscene phase, press the skip cutscene key
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Cutscene &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, (VirtualKeyCode)ConfigurationReader.KeyCutsceneSkip, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // If the "Press start" is being shown press space
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Fuel &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // If the rewards phase is being shown press escape
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Rewards &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
-                                Thread.Sleep(100);
-                            }
-
-                            // While in the bonus or settled phase
-                            // What this stage essentially does is upon winning, waits for all the rewards
-                            // to be shown, then exits the minigame, and rejoins it
-                            bool cleared = false;
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
-                                   _SteamworksData.PhaseValue == (byte)PhaseState.Bonus &&
-                                   !cts.IsCancellationRequested)
-                            {
-                                // If we've cleared the screen press space to start
-                                if (cleared)
-                                {
-                                    StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                    Thread.Sleep(100);
-                                }
-
-                                // Otherwise we exit out of the menu, and replay the game. Refer to https://github.com/UNOWEN-OwO
-                                // Here we need to refer to the second phase check because the game is technically over.
-                                else
-                                {
-                                    // While settled or bonus and in rewards have finished
-                                    while ((_SteamworksData.PhaseValue == (byte)PhaseState.Settled ||
-                                            _SteamworksData.PhaseValue == (byte)PhaseState.Bonus) &&
-                                            _SteamworksData.SecondPhaseValue == 1 &&
-                                            !cts.IsCancellationRequested)
-                                    {
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.LEFT, 100);
-                                        Thread.Sleep(1000);
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                        Thread.Sleep(1000);
-                                    }
-                                    // This escape command resets the timing properly after winning.
-                                    // If this doesn't occur, read values think we are waiting to collect our reward still
-                                    while (_SteamworksData.PhaseValue != (byte)PhaseState.Idle &&
-                                           _SteamworksData.PhaseValue != (byte)PhaseState.Fuel &&
-                                           _SteamworksData.SecondPhaseValue == 0 &&
-                                           !cts.IsCancellationRequested)
-                                    {
-                                        StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.ESCAPE, 100);
-                                        Thread.Sleep(1000);
-                                    }
-                                }
-                            }
-
-                            // If we're in idle phase, press the space button three times
-                            // No ide why this is needed. Refer to https://github.com/UNOWEN-OwO
-                            while (_SteamworksData.PhaseValue == (byte)PhaseState.Idle)
-                            {
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(1000);
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(500);
-                                StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, 100);
-                                Thread.Sleep(100);
-                                cleared = true;
-                            }
-                        }
+                        // When the steam gauge has reset, it means we can press space to start again.
+                        if (_SteamworksData.SteamGuageValue == 0)
+                            StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
                     }
                     // Reread the current button press state
                     currentButtonPressState = _SteamworksData.InputPressStateCheck;
+
+                    // Wait until we have focus
+                    if (!_Process.HasFocus())
+                        Log.Message("Waiting for MHW to have focus.");
+                    while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
+
                 }
             }
             catch (Exception e)

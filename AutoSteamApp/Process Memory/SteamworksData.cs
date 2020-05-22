@@ -49,6 +49,11 @@ namespace AutoSteamApp.ProcessMemory
         /// </summary>
         ulong RarityAddress;
 
+        /// <summary>
+        /// Address used to read the current steam gauge progress.
+        /// </summary>
+        ulong SteamGaugeAddress;
+        
         #endregion
 
         #region Properties
@@ -65,7 +70,7 @@ namespace AutoSteamApp.ProcessMemory
         }
 
         /// <summary>
-        /// Address used to read what phase the steamworks is in. 
+        /// what phase the steamworks is in. 
         /// </summary>
         public byte PhaseValue
         {
@@ -75,11 +80,36 @@ namespace AutoSteamApp.ProcessMemory
             }
         }
 
+        /// <summary>
+        /// what phase the steamworks is in when in the main menu of the steamworks.
+        /// </summary>
         public byte SecondPhaseValue
         {
             get
             {
                 return MemoryHelper.Read<byte>(MHWProcess, SecondPhaseAddress);
+            }
+        }
+
+        /// <summary>
+        /// what phase the steamworks is in when in the main menu of the steamworks.
+        /// </summary>
+        public RewardRarity RewardRarityValue
+        {
+            get
+            {
+                return (RewardRarity)MemoryHelper.Read<byte>(MHWProcess, RarityAddress);
+            }
+        }
+
+        /// <summary>
+        /// the current progress of the steam gauge.
+        /// </summary>
+        public short SteamGuageValue
+        {
+            get
+            {
+                return MemoryHelper.Read<short>(MHWProcess, SteamGaugeAddress);
             }
         }
 
@@ -122,6 +152,8 @@ namespace AutoSteamApp.ProcessMemory
             // Offset to find the rarity
             RarityAddress = SteamworksAddress + MHWMemoryValues.OffsetToGameRarity;
             Log.Debug("Rarity Address: " + RarityAddress);
+            SteamGaugeAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamGauge;
+            Log.Debug("Steam Gauge Address: " + SteamGaugeAddress);
         }
 
         /// <summary>
@@ -130,7 +162,6 @@ namespace AutoSteamApp.ProcessMemory
         /// <returns>A Tuple </returns>
         public VirtualKeyCode[] ExtractSequence()
         {
-            Log.Debug("Extracting Sequence");
             // Read the byte representation of the sequence from the game
             byte[] sequence = new byte[3];
             sequence[0] = MemoryHelper.Read<byte>(MHWProcess, SequenceAddress);
@@ -190,6 +221,15 @@ namespace AutoSteamApp.ProcessMemory
         WaitingForInput = 8,
         Cutscene = 12,
         Rewards = 13,
+    }
+
+    /// <summary>
+    /// The rarity of the reward of the steamworks
+    /// </summary>
+    public enum RewardRarity
+    {
+        Common = 0,
+        Rare = 1
     }
 
 }
