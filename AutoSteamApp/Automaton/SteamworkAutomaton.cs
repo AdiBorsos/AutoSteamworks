@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace AutoSteamApp.Automaton
 {
@@ -90,7 +91,7 @@ namespace AutoSteamApp.Automaton
                     {
                         // If we have satisfied all exit conditions
                         if (CheckForExitCondition())
-                            return;
+                            Environment.Exit(0);
 
                         // Otherwise we need to extract the sequence
                         ExtractAndEnterSequence(cts);
@@ -108,18 +109,8 @@ namespace AutoSteamApp.Automaton
             {
                 Log.Exception(new Exception("Failed automating steamworks\n\t", e));
                 Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
-                return;
+                Environment.Exit(1);
             }
-        }
-
-        /// <summary>
-        /// Checks if we have met the satisfying conditions provided by the config file.
-        /// </summary>
-        /// <returns></returns>
-        private bool CheckForExitCondition()
-        {
-            // true if we have either equal to or less fuel than specified in the config file.
-            return _SaveData.StoredFuel <= ConfigurationReader.StopAtFuelAmount;
         }
 
         private void EnterRandomSequence(CancellationToken cts)
@@ -136,22 +127,36 @@ namespace AutoSteamApp.Automaton
                 Log.Message("Waiting for MHW to have focus.");
             while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
 
-            StaticHelpers.PressKey(_InputSimulator, sequence[0], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
-            StaticHelpers.PressKey(_InputSimulator, sequence[1], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
-            StaticHelpers.PressKey(_InputSimulator, sequence[2], ConfigurationReader.RandomInputDelay);
-            Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                StaticHelpers.PressKey(_InputSimulator, sequence[i], ConfigurationReader.RandomInputDelay);
+                Thread.Sleep(ConfigurationReader.RandomInputDelay);
+            }
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
             Thread.Sleep(ConfigurationReader.RandomInputDelay);
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.VK_X, ConfigurationReader.RandomInputDelay);
-            return;
         }
 
 
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// Checks if we have met the satisfying conditions provided by the config file.
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckForExitCondition()
+        {
+            // true if we have either equal to or less fuel than specified in the config file.
+            if (_SaveData.StoredFuel <= ConfigurationReader.StopAtFuelAmount)
+            {
+                Log.Message("Hit minimum fuel reserve. Exiting");
+                return true;
+            }
+            return false;
+
+        }
 
         /// <summary>
         /// Loads and verifies the current MHW:IB process against the currently supported version.
