@@ -66,8 +66,8 @@ namespace AutoSteamApp.Configuration
 #endif
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "Debug"))
                 {
-                    if (bool.TryParse(ConfigurationManager.AppSettings["Debug"].Trim(), out bool ConfigDebug))
-                        _IsDebug |= ConfigDebug;
+                    if (bool.TryParse(ConfigurationManager.AppSettings["Debug"].Trim(), out bool parsed))
+                        _IsDebug |= parsed;
                 }
                 return _IsDebug.Value;
             }
@@ -126,8 +126,8 @@ namespace AutoSteamApp.Configuration
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "IsAzerty"))
                 {
-                    if (bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"].Trim(), out bool azerty))
-                        _IsAzerty = azerty;
+                    if (bool.TryParse(ConfigurationManager.AppSettings["IsAzerty"].Trim(), out bool parsed))
+                        _IsAzerty = parsed;
                 }
                 return _IsAzerty.Value;
             }
@@ -148,8 +148,8 @@ namespace AutoSteamApp.Configuration
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "DelayBetweenCombo"))
                 {
-                    if (int.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out int delay))
-                        _RandomInputDelay = delay;
+                    if (int.TryParse(ConfigurationManager.AppSettings["DelayBetweenCombo"].Trim(), out int parsed))
+                        _RandomInputDelay = parsed;
                 }
                 return _RandomInputDelay.Value;
             }
@@ -170,10 +170,10 @@ namespace AutoSteamApp.Configuration
                 _KeyCutsceneSkip = ConfigurationDefaults.DefaultKeyCutsceneSkip;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
-                    if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int keycode))
+                    if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int parsed))
                         try
                         {
-                            VirtualKeyCode key = (VirtualKeyCode)keycode;
+                            VirtualKeyCode key = (VirtualKeyCode)parsed;
                             _KeyCutsceneSkip = key;
                         }
                         catch
@@ -198,8 +198,8 @@ namespace AutoSteamApp.Configuration
                 _RandomRun = ConfigurationDefaults.DefaultRandomRun;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RandomRun"))
-                    if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool random))
-                        _RandomRun = random;
+                    if (bool.TryParse(ConfigurationManager.AppSettings["RandomRun"].Trim(), out bool parsed))
+                        _RandomRun = parsed;
 
                 return _RandomRun.Value;
             }
@@ -219,8 +219,8 @@ namespace AutoSteamApp.Configuration
                 _CommonSuccessRate = ConfigurationDefaults.DefaultCommonSuccessRate;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "CommonSuccessRate"))
-                    if (float.TryParse(ConfigurationManager.AppSettings["CommonSuccessRate"].Trim(), out float success))
-                        _CommonSuccessRate = success;
+                    if (float.TryParse(ConfigurationManager.AppSettings["CommonSuccessRate"].Trim(), out float parsed))
+                        _CommonSuccessRate = parsed;
 
                 return _CommonSuccessRate.Value;
             }
@@ -240,8 +240,8 @@ namespace AutoSteamApp.Configuration
                 _RareSuccessRate = ConfigurationDefaults.DefaultRareSuccessRate;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "RareSuccessRate"))
-                    if (float.TryParse(ConfigurationManager.AppSettings["RareSuccessRate"].Trim(), out float success))
-                        _RareSuccessRate = success;
+                    if (float.TryParse(ConfigurationManager.AppSettings["RareSuccessRate"].Trim(), out float parsed))
+                        _RareSuccessRate = parsed;
 
                 return _RareSuccessRate.Value;
             }
@@ -261,8 +261,8 @@ namespace AutoSteamApp.Configuration
                 _MaxTimeSlotNumberSeconds = ConfigurationDefaults.DefaultMaxTimeSlotNumberSeconds;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "MaxTimeSlotNumberSeconds"))
-                    if (int.TryParse(ConfigurationManager.AppSettings["MaxTimeSlotNumberSeconds"].Trim(), out int success))
-                        _MaxTimeSlotNumberSeconds = success;
+                    if (int.TryParse(ConfigurationManager.AppSettings["MaxTimeSlotNumberSeconds"].Trim(), out int parsed))
+                        _MaxTimeSlotNumberSeconds = parsed;
 
                 return _MaxTimeSlotNumberSeconds.Value;
             }
@@ -282,13 +282,34 @@ namespace AutoSteamApp.Configuration
                 _StopAtFuelAmount = ConfigurationDefaults.DefaultStopAtFuelAmount;
 
                 if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "StopAtFuelAmount"))
-                    if (int.TryParse(ConfigurationManager.AppSettings["StopAtFuelAmount"].Trim(), out int success))
-                        _StopAtFuelAmount = success;
+                    if (int.TryParse(ConfigurationManager.AppSettings["StopAtFuelAmount"].Trim(), out int parsed))
+                        _StopAtFuelAmount = parsed;
 
                 return _StopAtFuelAmount.Value;
             }
         }
         static int? _StopAtFuelAmount = null;
+
+        /// <summary>
+        /// Should only natural fuel be used, or both natural and stored?
+        /// </summary>
+        public static bool OnlyUseNaturalFuel
+        {
+            get
+            {
+                if (_OnlyUseNaturalFuel.HasValue)
+                    return _OnlyUseNaturalFuel.Value;
+
+                _OnlyUseNaturalFuel = ConfigurationDefaults.DefaultOnlyUseNaturalFuel;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "OnlyUseNaturalFuel"))
+                    if (bool.TryParse(ConfigurationManager.AppSettings["OnlyUseNaturalFuel"].Trim(), out bool parsed))
+                        _OnlyUseNaturalFuel = parsed;
+
+                return _OnlyUseNaturalFuel.Value;
+            }
+        }
+        static bool? _OnlyUseNaturalFuel = null;
 
         #endregion
 

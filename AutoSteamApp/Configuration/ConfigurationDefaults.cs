@@ -53,5 +53,10 @@ namespace AutoSteamApp.Configuration
         /// At what fuel amount do we stop running?
         /// </summary>
         public const int DefaultStopAtFuelAmount = 0;
+
+        /// <summary>
+        /// Should only natural fuel be spent?
+        /// </summary>
+        public const bool DefaultOnlyUseNaturalFuel = false;
     }
 }
