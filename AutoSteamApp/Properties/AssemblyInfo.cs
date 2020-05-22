@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Steamworks Automaton")]
+[assembly: AssemblyTitle("Auto Steamworks")]
 [assembly: AssemblyDescription("Automates and guarantees perefect execution of the Monster Hunter World: Iceborne steamworks minigame")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Steamworks Automaton")]
+[assembly: AssemblyProduct("Auto Steamworks")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0")]
+[assembly: AssemblyVersion("2.0")]
 [assembly: AssemblyFileVersion("11.0")]
 [assembly: NeutralResourcesLanguage("en")]
