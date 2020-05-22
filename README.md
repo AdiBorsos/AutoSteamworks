@@ -1,6 +1,6 @@
 [![Donate](https://img.shields.io/badge/Support-Adi-blue)](https://www.paypal.me/adiborsos) [![Donate](https://img.shields.io/badge/Support-Zig-blue)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=NHE57X34UDZRL&currency_code=CAD&source=urll)
 # Auto Steamworks 
-![Auto Steamworks](Documentation/Images/banner.png)
+![Auto Steamworks](/Documentation/Images/banner.png)
 
 ## About
 ---
