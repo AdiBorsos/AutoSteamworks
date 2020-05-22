@@ -169,8 +169,8 @@ namespace AutoSteamApp.Configuration
 
                 _KeyCutsceneSkip = ConfigurationDefaults.DefaultKeyCutsceneSkip;
 
-                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "keyCutsceneSkip"))
-                    if (int.TryParse(ConfigurationManager.AppSettings["keyCutsceneSkip"].Trim(), out int parsed))
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "KeyCutsceneSkip"))
+                    if (int.TryParse(ConfigurationManager.AppSettings["KeyCutsceneSkip"].Trim(), out int parsed))
                         try
                         {
                             VirtualKeyCode key = (VirtualKeyCode)parsed;
