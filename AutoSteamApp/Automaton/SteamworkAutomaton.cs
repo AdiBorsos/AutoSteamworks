@@ -88,7 +88,14 @@ namespace AutoSteamApp.Automaton
                 {
                     if (_SupportedVersion && !ConfigurationReader.RandomRun)
                     {
+                        // If we have satisfied all exit conditions
+                        if (CheckForExitCondition())
+                            return;
+
+                        // Otherwise we need to extract the sequence
                         ExtractAndEnterSequence(cts);
+
+                        // Then check the steamworks state
                         CheckSteamworksState(cts);
                     }
                     else
@@ -103,6 +110,16 @@ namespace AutoSteamApp.Automaton
                 Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
                 return;
             }
+        }
+
+        /// <summary>
+        /// Checks if we have met the satisfying conditions provided by the config file.
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckForExitCondition()
+        {
+            // true if we have either equal to or less fuel than specified in the config file.
+            return _SaveData.StoredFuel <= ConfigurationReader.StopAtFuelAmount;
         }
 
         private void EnterRandomSequence(CancellationToken cts)
