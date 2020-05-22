@@ -98,7 +98,7 @@ namespace AutoSteamApp.Helpers
         public static void SetConsoleTitle()
         {
             Version ver = ConfigurationReader.ApplicationVersion;
-            string title = "Steamworks Automaton V:" + ver.Major + "." + ver.Minor;
+            string title = "Auto Steamworks Version:" + ver.Major + "." + ver.Minor;
             title += "        ";
             title += "Supported MHW:IB Version: " + MHWMemoryValues.SupportedGameVersion;
             Console.Title = title;
