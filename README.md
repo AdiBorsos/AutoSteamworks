@@ -1,6 +1,6 @@
 [![Donate](https://img.shields.io/badge/Support-Adi-blue)](https://www.paypal.me/adiborsos) [![Donate](https://img.shields.io/badge/Support-Zig-blue)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=NHE57X34UDZRL&currency_code=CAD&source=urll)
 # Auto Steamworks 
-![Auto Steamworks](Documentation\Images\banner.png)
+![Auto Steamworks](Documentation/Images/banner.png)
 
 ## About
 ---
@@ -8,9 +8,6 @@
 The Atuo Steamworks is a tool used to automate the Monster Hunter World: Iceborne mini-game, the steamworks. By reading the memory values found within the the Monster Hunter World process, the automated is also able to determine the correct sequence to win every round.
 
 Please use the [Github page](https://github.com/AdiBorsos/AutoSteamworks) to ask for features.
-
-#### Requirements
----
 
 
 #### How To Install
@@ -71,8 +68,8 @@ Key | Type | Default | Description
  #### Contributors & Credits:
  ---
  - [Geobryn](https://github.com/Geobryn)
- - - Made it 100% accurate without writing memory
- - - Added CutsceneSkip functionality
+   - Made it 100% accurate without writing memory
+   - Added CutsceneSkip functionality
  - [Marcus101RR]( https://fearlessrevolution.com/memberlist.php?mode=viewprofile&u=438 ) 
  - - for his work on this [Cheat Table](https://fearlessrevolution.com/viewtopic.php?f=4&t=9923)
  - [r00telement](https://github.com/r00telement/SmartHunter) 
