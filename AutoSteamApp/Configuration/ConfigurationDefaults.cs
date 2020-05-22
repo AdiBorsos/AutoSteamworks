@@ -58,5 +58,11 @@ namespace AutoSteamApp.Configuration
         /// Should only natural fuel be spent?
         /// </summary>
         public const bool DefaultOnlyUseNaturalFuel = false;
+
+        /// <summary>
+        /// Should the app close itself on exit condition being met, or wait for user input?
+        /// </summary>
+        public const bool DefaultShouldAutoQuit = false;
+   
     }
 }

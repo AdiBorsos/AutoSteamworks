@@ -311,6 +311,27 @@ namespace AutoSteamApp.Configuration
         }
         static bool? _OnlyUseNaturalFuel = null;
 
+        /// <summary>
+        /// Should only natural fuel be used, or both natural and stored?
+        /// </summary>
+        public static bool ShouldAutoQuit
+        {
+            get
+            {
+                if (_ShouldAutoQuit.HasValue)
+                    return _ShouldAutoQuit.Value;
+
+                _ShouldAutoQuit = ConfigurationDefaults.DefaultShouldAutoQuit;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "ShouldAutoQuit"))
+                    if (bool.TryParse(ConfigurationManager.AppSettings["ShouldAutoQuit"].Trim(), out bool parsed))
+                        _ShouldAutoQuit = parsed;
+
+                return _ShouldAutoQuit.Value;
+            }
+        }
+        static bool? _ShouldAutoQuit = null;
+
         #endregion
 
     }
