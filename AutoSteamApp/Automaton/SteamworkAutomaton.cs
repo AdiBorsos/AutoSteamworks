@@ -148,14 +148,26 @@ namespace AutoSteamApp.Automaton
         /// <returns></returns>
         private bool CheckForExitCondition()
         {
-            // true if we have either equal to or less fuel than specified in the config file.
-            if (_SaveData.StoredFuel <= ConfigurationReader.StopAtFuelAmount)
+            if(ConfigurationReader.OnlyUseNaturalFuel)
             {
-                Log.Message("Hit minimum fuel reserve. Exiting");
-                return true;
+                // true if we have either equal to or less fuel than specified in the config file.
+                if (_SaveData.NaturalFuelLeft <= ConfigurationReader.StopAtFuelAmount)
+                {
+                    Log.Message("Hit minimum natural fuel reserve. Exiting");
+                    return true;
+                }
+                return false;
             }
-            return false;
-
+            else
+            {
+                // true if we have either equal to or less fuel than specified in the config file.
+                if (_SaveData.StoredFuelLeft <= ConfigurationReader.StopAtFuelAmount)
+                {
+                    Log.Message("Hit minimum stored fuel reserve. Exiting");
+                    return true;
+                }
+                return false;
+            }
         }
 
         /// <summary>
