@@ -101,8 +101,7 @@ namespace AutoSteamApp.Automaton
             {
                 Log.Exception(new Exception("Failed automating steamworks\n\t", e));
                 Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
-                Console.ReadKey();
-                Environment.Exit(1);
+                return;
             }
         }
 

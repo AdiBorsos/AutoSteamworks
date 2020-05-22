@@ -41,25 +41,30 @@ namespace AutoSteamApp
             // Wait for user input to signal ready
             Log.Message("Press Any Key to begin.");
             Console.ReadKey();
-            
+
             // Spawn a task to do the work in a separate thread
             Task t = Task.Run(() => { automaton.Run(token); });
 
+            // Loop waiting for exit command, or for the thread ot naturally finish
             Log.Message("Enter quit to stop");
             while (Console.ReadLine() != "quit")
             {
-                // Wait for exit command
+                if (t.IsCompleted)
+                {
+                    Log.Debug("Task finished on its own");
+                    break;
+                }
             }
 
             Log.Message("Waiting for thread to exit.");
             //When exit is invoked, cancel the token
             cts.Cancel();
-
             // Wait for the thread to finish.
             t.Wait();
+
             Log.Message("Exiting.");
 
-            // Quit, as well as all underlying threads
+            // Quit, as well as all underlying threads. Propagate a success command upward (if being called externally)
             Environment.Exit(0);
         }
 
