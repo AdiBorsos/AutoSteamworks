@@ -269,6 +269,27 @@ namespace AutoSteamApp.Configuration
         }
         static int? _MaxTimeSlotNumberSeconds = null;
 
+        /// <summary>
+        /// The time in seconds to wait to identify the currently used slot before exiting.
+        /// </summary>
+        public static int StopAtFuelAmount
+        {
+            get
+            {
+                if (_StopAtFuelAmount.HasValue)
+                    return _StopAtFuelAmount.Value;
+
+                _StopAtFuelAmount = ConfigurationDefaults.DefaultStopAtFuelAmount;
+
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "StopAtFuelAmount"))
+                    if (int.TryParse(ConfigurationManager.AppSettings["StopAtFuelAmount"].Trim(), out int success))
+                        _StopAtFuelAmount = success;
+
+                return _StopAtFuelAmount.Value;
+            }
+        }
+        static int? _StopAtFuelAmount = null;
+
         #endregion
 
     }

@@ -48,5 +48,10 @@ namespace AutoSteamApp.Configuration
         /// How long do we wait for the slot to be identified before exiting?
         /// </summary>
         public const int DefaultMaxTimeSlotNumberSeconds = 30;
+
+        /// <summary>
+        /// At what fuel amount do we stop running?
+        /// </summary>
+        public const int DefaultStopAtFuelAmount = 0;
     }
 }
