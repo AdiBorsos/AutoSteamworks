@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Auto Steamworks")]
+[assembly: AssemblyTitle("AutoSteamworks")]
 [assembly: AssemblyDescription("Automates and guarantees perefect execution of the Monster Hunter World: Iceborne steamworks minigame")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
