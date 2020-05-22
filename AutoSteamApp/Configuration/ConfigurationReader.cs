@@ -270,7 +270,7 @@ namespace AutoSteamApp.Configuration
         static int? _MaxTimeSlotNumberSeconds = null;
 
         /// <summary>
-        /// The time in seconds to wait to identify the currently used slot before exiting.
+        /// How much fuel should be left when we are done.
         /// </summary>
         public static int StopAtFuelAmount
         {
