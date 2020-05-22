@@ -66,9 +66,14 @@ namespace AutoSteamApp.Automaton
             catch (Exception e)
             {
                 Log.Exception(new Exception("Failed to initialze Steamworks Automaton\n\t", e));
-                Log.Warning("Something went wrong reading the MHW:IB process. Press any key to exit");
-                Console.ReadKey();
-                Environment.Exit(1);
+                Log.Warning("Something went wrong reading the MHW:IB process.");
+                if (!ConfigurationReader.ShouldAutoQuit)
+                {
+                    Log.Message("Press any key to exit.");
+                    Console.ReadKey();
+                }
+                Environment.Exit(-1);
+
             }
         }
 
@@ -91,7 +96,12 @@ namespace AutoSteamApp.Automaton
                     {
                         // If we have satisfied all exit conditions
                         if (CheckForExitCondition())
-                            Environment.Exit(0);
+                            // If we should auto exit, quit immediately
+                            if (ConfigurationReader.ShouldAutoQuit)
+                                Environment.Exit(0);
+                            // Otherwise wait for quit to be typed
+                            else
+                                return;
 
                         // Otherwise we need to extract the sequence
                         ExtractAndEnterSequence(cts);
@@ -108,8 +118,13 @@ namespace AutoSteamApp.Automaton
             catch (Exception e)
             {
                 Log.Exception(new Exception("Failed automating steamworks\n\t", e));
-                Log.Warning("Something went wrong trying to automate the steamworks. Press any key to exit");
-                Environment.Exit(1);
+                Log.Warning("Something went wrong trying to automate the steamworks.");
+                // If we should auto exit, quit immediately
+                if (ConfigurationReader.ShouldAutoQuit)
+                    Environment.Exit(-1);
+                // Otherwise wait for quit to be typed
+                else
+                    return;
             }
         }
 
@@ -148,12 +163,12 @@ namespace AutoSteamApp.Automaton
         /// <returns></returns>
         private bool CheckForExitCondition()
         {
-            if(ConfigurationReader.OnlyUseNaturalFuel)
+            if (ConfigurationReader.OnlyUseNaturalFuel)
             {
                 // true if we have either equal to or less fuel than specified in the config file.
                 if (_SaveData.NaturalFuelLeft <= ConfigurationReader.StopAtFuelAmount)
                 {
-                    Log.Message("Hit minimum natural fuel reserve. Exiting");
+                    Log.Message("Hit minimum natural fuel reserve.");
                     return true;
                 }
                 return false;
@@ -163,7 +178,7 @@ namespace AutoSteamApp.Automaton
                 // true if we have either equal to or less fuel than specified in the config file.
                 if (_SaveData.StoredFuelLeft <= ConfigurationReader.StopAtFuelAmount)
                 {
-                    Log.Message("Hit minimum stored fuel reserve. Exiting");
+                    Log.Message("Hit minimum stored fuel reserve.");
                     return true;
                 }
                 return false;
