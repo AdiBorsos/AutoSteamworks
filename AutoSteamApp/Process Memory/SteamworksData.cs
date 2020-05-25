@@ -17,7 +17,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
         /// </summary>
-        Process MHWProcess;
+        private readonly Process MHWProcess;
 
         /// <summary>
         /// The address which begins the "steamworks" object.
