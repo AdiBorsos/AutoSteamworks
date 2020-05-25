@@ -21,7 +21,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The address of the steamworks save data.
         /// </summary>
-        private readonly ulong SteamworksSaveDataAddress;
+        private ulong SteamworksSaveDataAddress;
 
         #endregion
 
