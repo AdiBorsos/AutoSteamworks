@@ -136,7 +136,7 @@ namespace AutoSteamApp.Helpers
         /// Generates a random sequence of three key codes
         /// </summary>
         /// <returns></returns>
-        public static VirtualKeyCode[] GetRandomSequence()
+        public static VirtualKeyCode[] GetRandomSequence(Random rng)
         {
             VirtualKeyCode[] retVal = new VirtualKeyCode[3];
             if (ConfigurationReader.IsAzerty)
@@ -151,7 +151,7 @@ namespace AutoSteamApp.Helpers
                 retVal[1] = VirtualKeyCode.VK_W;
                 retVal[2] = VirtualKeyCode.VK_D;
             }
-            return retVal.Shuffle();
+            return retVal.Shuffle(rng);
         }
 
         /// <summary>

@@ -44,6 +44,11 @@ namespace AutoSteamApp.Automaton
         /// </summary>
         private readonly InputSimulator _InputSimulator;
 
+        /// <summary>
+        /// The random object used for generating a random distribution.
+        /// </summary>
+        private Random _Random;
+
         #endregion
 
         #region Constructor
@@ -62,6 +67,7 @@ namespace AutoSteamApp.Automaton
                     _SaveData = new SaveData(_Process);
                 }
                 _InputSimulator = new InputSimulator();
+                _Random = new Random();
             }
             catch (Exception e)
             {

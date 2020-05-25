@@ -38,9 +38,8 @@ namespace AutoSteamApp.Helpers
         /// </summary>
         /// <typeparam name="T">Array element type.</typeparam>
         /// <param name="array">Array to shuffle.</param>
-        public static T[] Shuffle<T>(this T[] array)
+        public static T[] Shuffle<T>(this T[] array, Random rng)
         {
-            Random rng = new Random();
             int n = array.Length;
             for (int i = 0; i < (n - 1); i++)
             {
