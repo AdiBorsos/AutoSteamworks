@@ -85,7 +85,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// Loads/Reloads the Save Data of the current MHW Process
         /// </summary>
-        public void LoadData()
+        private void LoadData()
         {
             // Load the address of the save data
             ulong SaveDataAddress = MemoryHelper.Read<ulong>(MHWProcess, MHWMemoryValues.SaveDataPointer);
