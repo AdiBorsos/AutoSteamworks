@@ -27,17 +27,17 @@ namespace AutoSteamApp.Automaton
         /// <summary>
         /// Save data loaded in the constructor.
         /// </summary>
-        private SaveData _SaveData;
+        private readonly SaveData _SaveData;
 
         /// <summary>
         /// Steamworks data loaded in constructor.
         /// </summary>
-        private SteamworksData _SteamworksData;
+        private readonly SteamworksData _SteamworksData;
 
         /// <summary>
         /// Field used to flag whether or not the currently running MHW:IB version is supported.
         /// </summary>
-        private bool _SupportedVersion = false;
+        private bool _IsSupportedVersion = false;
 
         /// <summary>
         /// The input simulator used to mock button presses.
@@ -61,7 +61,7 @@ namespace AutoSteamApp.Automaton
             try
             {
                 LoadAndVerifyProcess();
-                if (_SupportedVersion && !ConfigurationReader.RandomRun)
+                if (_IsSupportedVersion && !ConfigurationReader.RandomRun)
                 {
                     _SteamworksData = new SteamworksData(_Process);
                     _SaveData = new SaveData(_Process);
@@ -100,7 +100,7 @@ namespace AutoSteamApp.Automaton
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    if (_SupportedVersion && !ConfigurationReader.RandomRun)
+                    if (_IsSupportedVersion && !ConfigurationReader.RandomRun)
                     {
                         // If we have satisfied all exit conditions
                         if (CheckForExitCondition())
@@ -230,7 +230,7 @@ namespace AutoSteamApp.Automaton
                         if (result == MHWMemoryValues.SupportedGameVersion)
                         {
                             // Set the flag
-                            _SupportedVersion = true;
+                            _IsSupportedVersion = true;
 
                             return;
                         }
