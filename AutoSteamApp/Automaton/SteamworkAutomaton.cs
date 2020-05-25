@@ -22,7 +22,7 @@ namespace AutoSteamApp.Automaton
         /// <summary>
         /// Process loaded in the constructor.
         /// </summary>
-        private readonly Process _Process;
+        private Process _Process;
 
         /// <summary>
         /// Save data loaded in the constructor.
