@@ -22,7 +22,7 @@ namespace AutoSteamApp.Automaton
         /// <summary>
         /// Process loaded in the constructor.
         /// </summary>
-        Process _Process;
+        private readonly Process _Process;
 
         /// <summary>
         /// Save data loaded in the constructor.
@@ -42,7 +42,7 @@ namespace AutoSteamApp.Automaton
         /// <summary>
         /// The input simulator used to mock button presses.
         /// </summary>
-        InputSimulator _InputSimulator;
+        private readonly InputSimulator _InputSimulator;
 
         #endregion
 
