@@ -21,7 +21,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The address of the steamworks save data.
         /// </summary>
-        private ulong SteamworksSaveDataAddress;
+        private ulong SaveDataAddress;
 
         #endregion
 
@@ -34,7 +34,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToNaturalFuel);
+                return MemoryHelper.Read<int>(MHWProcess, SaveDataAddress + MHWMemoryValues.OffsetToNaturalFuel);
             }
         }
 
@@ -45,7 +45,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<int>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToStoredFuel);
+                return MemoryHelper.Read<int>(MHWProcess, SaveDataAddress + MHWMemoryValues.OffsetToStoredFuel);
             }
         }
 
@@ -56,7 +56,7 @@ namespace AutoSteamApp.ProcessMemory
         {
             get
             {
-                return MemoryHelper.Read<short>(MHWProcess, SteamworksSaveDataAddress + MHWMemoryValues.OffsetToSteamGauge);
+                return MemoryHelper.Read<short>(MHWProcess, SaveDataAddress + MHWMemoryValues.OffsetToSteamGauge);
             }
         }
 
@@ -94,10 +94,10 @@ namespace AutoSteamApp.ProcessMemory
             // Get which slot number we are using so we know where to find the current steamworks values
             int slotNumber = GetSlotNumber(SlotDataPointer);
             // The steamworks save data pointer is found in the slot data so first go there.
-            SteamworksSaveDataAddress = MemoryHelper.Read<ulong>(MHWProcess, SlotDataPointer);
+            this.SaveDataAddress = MemoryHelper.Read<ulong>(MHWProcess, SlotDataPointer);
             // Then offset to the proper slot (slot no. * slot size)
-            SteamworksSaveDataAddress += ((ulong)slotNumber * MHWMemoryValues.SlotSize);
-            Log.Debug("Steamworks Save Data Address: " + SteamworksSaveDataAddress);
+            this.SaveDataAddress += ((ulong)slotNumber * MHWMemoryValues.SlotSize);
+            Log.Debug("Steamworks Save Data Address: " + this.SaveDataAddress);
         }
 
         /// <summary>
