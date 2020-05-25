@@ -55,6 +55,11 @@ namespace AutoSteamApp.Helpers
             return array;
         }
 
+        /// <summary>
+        /// Checks if the desired process has the current focus.
+        /// </summary>
+        /// <param name="process"></param>
+        /// <returns></returns>
         public static bool HasFocus(this Process process)
         {
             var activatedHandle = WindowsApi.GetForegroundWindow();
