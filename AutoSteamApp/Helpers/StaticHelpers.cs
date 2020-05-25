@@ -40,7 +40,7 @@ namespace AutoSteamApp.Helpers
                 return;
             }
             Log.Message("\tIs Azerty: " + ConfigurationReader.IsAzerty);
-            Log.Message("\tLog File: " + (ConfigurationReader.LogFile ?? "Not supplied") );
+            Log.Message("\tLog File: " + (ConfigurationReader.LogFile ?? "Not supplied"));
             Log.Message("\tRandom Run: " + ConfigurationReader.RandomRun);
             Log.Message("\tInput Delay on Random Run: " + ConfigurationReader.RandomInputDelay);
             Log.Message("\tCutscene skip key: " + ConfigurationReader.KeyCutsceneSkip.ToString());
@@ -162,17 +162,10 @@ namespace AutoSteamApp.Helpers
         /// <param name="delay">The delay to wait between key down and key up.</param>
         public static void PressKey(InputSimulator sim, VirtualKeyCode key, int delay = 0)
         {
-            // Im not sure if thread.sleep eats up allocation etc. resources when called with 0 as an argument
-            // So I've decided to skip it if the delay is 0
-            if (delay > 0)
-            {
-                sim.Keyboard.KeyDown(key);
-                sim.Keyboard.Sleep(delay);
-                sim.Keyboard.KeyUp(key);
-                return;
-            }
-
-            sim.Keyboard.KeyPress(key);
+            sim.Keyboard.KeyDown(key);
+            sim.Keyboard.Sleep(delay);
+            sim.Keyboard.KeyUp(key);
+            return;
         }
 
     }
