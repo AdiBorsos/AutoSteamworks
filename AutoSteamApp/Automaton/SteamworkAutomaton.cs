@@ -27,17 +27,17 @@ namespace AutoSteamApp.Automaton
         /// <summary>
         /// Save data loaded in the constructor.
         /// </summary>
-        SaveData _SaveData;
+        private SaveData _SaveData;
 
         /// <summary>
         /// Steamworks data loaded in constructor.
         /// </summary>
-        SteamworksData _SteamworksData;
+        private SteamworksData _SteamworksData;
 
         /// <summary>
         /// Field used to flag whether or not the currently running MHW:IB version is supported.
         /// </summary>
-        bool _SupportedVersion = false;
+        private bool _SupportedVersion = false;
 
         /// <summary>
         /// The input simulator used to mock button presses.
@@ -232,7 +232,7 @@ namespace AutoSteamApp.Automaton
         /// Extracts from the process the correct sequence to input, then inputs it.
         /// </summary>
         /// <param name="cts">Cancellation token used to signal when to stop.</param>
-        void ExtractAndEnterSequence(CancellationToken cts)
+        private void ExtractAndEnterSequence(CancellationToken cts)
         {
             try
             {
