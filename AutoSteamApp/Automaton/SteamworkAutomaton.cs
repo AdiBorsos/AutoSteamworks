@@ -137,7 +137,7 @@ namespace AutoSteamApp.Automaton
         private void EnterRandomSequence(CancellationToken cts)
         {
             // Generate a sequence to input
-            VirtualKeyCode[] sequence = StaticHelpers.GetRandomSequence();
+            VirtualKeyCode[] sequence = StaticHelpers.GetRandomSequence(_Random);
             // If the version is unsuported, use a random sequence
 
             // Press the buttons and wait 30ms then press start (in case the cutscene plays)
