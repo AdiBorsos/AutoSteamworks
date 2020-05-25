@@ -21,6 +21,7 @@ namespace AutoSteamApp.Helpers
         {
             //Retrieve all processes with defined process name
             var processes = Process.GetProcessesByName(MHWMemoryValues.ProcessName);
+
             // Try to return the first one
             return processes.First(p => p != null && p.ProcessName.Equals(MHWMemoryValues.ProcessName) && !p.HasExited);
         }
@@ -47,6 +48,9 @@ namespace AutoSteamApp.Helpers
             Log.Message("\tCommon Reward Success Rate: " + ConfigurationReader.CommonSuccessRate.ToString("#.##"));
             Log.Message("\tRare Reward Success Rate: " + ConfigurationReader.RareSuccessRate.ToString("#.##"));
             Log.Message("\tMaximum Wait for Determining Slot: " + ConfigurationReader.MaxTimeSlotNumberSeconds);
+            Log.Message("\tStop at Fuel Amount: " + ConfigurationReader.StopAtFuelAmount);
+            Log.Message("\tOnly use Natural Fuel: " + ConfigurationReader.OnlyUseNaturalFuel);
+            Log.Message("\tShould Auto-Quit: " + ConfigurationReader.ShouldAutoQuit);
             Log.Message("");
         }
 
