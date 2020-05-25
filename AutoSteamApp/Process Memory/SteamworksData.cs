@@ -137,21 +137,28 @@ namespace AutoSteamApp.ProcessMemory
             // Load the address of the steamworks data
             SteamworksAddress = MemoryHelper.Read<ulong>(MHWProcess, MHWMemoryValues.SteamworksDataPointer);
             Log.Debug("Steamworks Address: " + SteamworksAddress);
+
             // Offset to find the sequence address
             SequenceAddress = SteamworksAddress + MHWMemoryValues.OffsetToSequence;
             Log.Debug("Sequence Address: " + SequenceAddress);
+
             // Offset to find the button pressed check address
             ButtonPressedCheckAddress = SteamworksAddress + MHWMemoryValues.OffsetToButtonCheck;
             Log.Debug("Button-Pressed-Check Address: " + ButtonPressedCheckAddress);
+
             // Offset to find the phase address
             PhaseAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamPhase;
             Log.Debug("Phase Address: " + PhaseAddress);
+
             // Offset to find the secondary phase check address
             SecondPhaseAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamSecondPhase;
             Log.Debug("2nd Phase Address: " + SecondPhaseAddress);
+
             // Offset to find the rarity
             RarityAddress = SteamworksAddress + MHWMemoryValues.OffsetToGameRarity;
             Log.Debug("Rarity Address: " + RarityAddress);
+
+            // Offset to the steam gauge address
             SteamGaugeAddress = SteamworksAddress + MHWMemoryValues.OffsetToSteamGauge;
             Log.Debug("Steam Gauge Address: " + SteamGaugeAddress);
         }
