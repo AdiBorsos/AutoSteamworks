@@ -16,12 +16,12 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The Monster Hunter World: Iceborne process to load player data from.
         /// </summary>
-        Process MHWProcess;
+        private readonly Process MHWProcess;
 
         /// <summary>
         /// The address of the steamworks save data.
         /// </summary>
-        ulong SteamworksSaveDataAddress;
+        private readonly ulong SteamworksSaveDataAddress;
 
         #endregion
 
@@ -106,7 +106,7 @@ namespace AutoSteamApp.ProcessMemory
         /// </summary>
         /// <param name="SlotDataPointer">The pointer to the slot data address.</param>
         /// <returns>The slot number the player is currently using.</returns>
-        int GetSlotNumber(ulong SlotDataPointer)
+        private int GetSlotNumber(ulong SlotDataPointer)
         {
             // We know that the pointer to the slot data is X bytes after the save data pointer value          
             int[] SlotPlayTimes = new int[3] { -1, -1, -1 };
