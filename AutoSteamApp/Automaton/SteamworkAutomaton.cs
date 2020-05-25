@@ -131,11 +131,10 @@ namespace AutoSteamApp.Automaton
         private void EnterRandomSequence(CancellationToken cts)
         {
             // Generate a sequence to input
-            VirtualKeyCode[] sequence;
+            VirtualKeyCode[] sequence = StaticHelpers.GetRandomSequence();
             // If the version is unsuported, use a random sequence
-            sequence = StaticHelpers.RandomSequence();
+
             // Press the buttons and wait 30ms then press start (in case the cutscene plays)
-            // Press the keys
             Log.Debug("Random Sequence: [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
             // Wait until we have focus
             if (!_Process.HasFocus())
