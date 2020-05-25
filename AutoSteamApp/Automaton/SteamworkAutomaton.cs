@@ -66,6 +66,7 @@ namespace AutoSteamApp.Automaton
                     _SteamworksData = new SteamworksData(_Process);
                     _SaveData = new SaveData(_Process);
                 }
+
                 _InputSimulator = new InputSimulator();
                 _Random = new Random();
             }
@@ -78,6 +79,7 @@ namespace AutoSteamApp.Automaton
                     Log.Message("Press any key to exit.");
                     Console.ReadKey();
                 }
+
                 Environment.Exit(-1);
 
             }
@@ -138,13 +140,16 @@ namespace AutoSteamApp.Automaton
         {
             // Generate a sequence to input
             VirtualKeyCode[] sequence = StaticHelpers.GetRandomSequence(_Random);
-            // If the version is unsuported, use a random sequence
 
             // Press the buttons and wait 30ms then press start (in case the cutscene plays)
             Log.Debug("Random Sequence: [" + string.Join(", ", sequence.Select(x => x.ToString())) + "]");
+
             // Wait until we have focus
             if (!_Process.HasFocus())
+            {
                 Log.Message("Waiting for MHW to have focus.");
+            }
+
             while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
 
             for (int i = 0; i < sequence.Length; i++)
@@ -152,6 +157,7 @@ namespace AutoSteamApp.Automaton
                 StaticHelpers.PressKey(_InputSimulator, sequence[i], ConfigurationReader.RandomInputDelay);
                 Thread.Sleep(ConfigurationReader.RandomInputDelay);
             }
+
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
             Thread.Sleep(ConfigurationReader.RandomInputDelay);
             StaticHelpers.PressKey(_InputSimulator, ConfigurationReader.KeyCutsceneSkip, ConfigurationReader.RandomInputDelay);
@@ -174,8 +180,10 @@ namespace AutoSteamApp.Automaton
                 if (_SaveData.NaturalFuelLeft <= ConfigurationReader.StopAtFuelAmount)
                 {
                     Log.Message("Hit minimum natural fuel reserve.");
+
                     return true;
                 }
+
                 return false;
             }
             else
@@ -184,8 +192,10 @@ namespace AutoSteamApp.Automaton
                 if (_SaveData.StoredFuelLeft <= ConfigurationReader.StopAtFuelAmount)
                 {
                     Log.Message("Hit minimum stored fuel reserve.");
+
                     return true;
                 }
+
                 return false;
             }
         }
@@ -208,8 +218,10 @@ namespace AutoSteamApp.Automaton
             Match match = Regex.Match(_Process.MainWindowTitle, MHWMemoryValues.SupportedVersionRegex);
             // If the match is made
             if (match.Success)
+            {
                 // And we have a capture group
                 if (match.Groups.Count > 1)
+                {
                     // Try to turn it into a number
                     if (int.TryParse(match.Groups[1].Value, out int result))
                     {
@@ -219,14 +231,19 @@ namespace AutoSteamApp.Automaton
                         {
                             // Set the flag
                             _SupportedVersion = true;
+
                             return;
                         }
+
                         Log.Warning(
                             "Version unsupported. Currently supported version: " + MHWMemoryValues.SupportedGameVersion +
                             "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
                                     );
+
                         return;
                     }
+                }
+            }
             Log.Error(
                 "Could not verify game version. This is most likely due to a different versioning system being used by Capcom." +
                 "\n\t\tAutomaton will still run, however, correct sequences cannot be read"
@@ -251,6 +268,7 @@ namespace AutoSteamApp.Automaton
                 {
                     Log.Debug("Could not find a valid sequence. Are you sure you are in the game?");
                     Thread.Sleep(1000);
+
                     return;
                 }
 
@@ -262,13 +280,8 @@ namespace AutoSteamApp.Automaton
                     probability = ConfigurationReader.RareSuccessRate;
                 }
 
-                // Use rng to check if we win or not
-                // TODO: maybe not create a new instance every time? I'll need to consult with someone about the probability distribution
-                // or System.Random when doing it this way.
-                Random rng = new Random();
-
                 // If we fail the rng check, reverse the inputs
-                if (rng.NextDouble() > probability)
+                if (_Random.NextDouble() > probability)
                 {
                     Log.Debug("Failed rng check. shifting sequence to guarantee incorrect input.");
                     sequence = new VirtualKeyCode[] { sequence[1], sequence[2], sequence[0] };
@@ -287,7 +300,10 @@ namespace AutoSteamApp.Automaton
                     {
                         // Wait until we have focus
                         if (!_Process.HasFocus())
+                        {
                             Log.Message("Waiting for MHW to have focus.");
+                        }
+
                         while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
 
                         // Press the key
@@ -315,11 +331,11 @@ namespace AutoSteamApp.Automaton
                 // Check the current Button Press Check Value
                 byte currentButtonPressState = _SteamworksData.InputPressStateCheck;
                 // While we are not in the input mode
-                while (currentButtonPressState != (byte)ButtonPressedState.Beginning &&
-                       !cts.IsCancellationRequested)
+                while (currentButtonPressState != (byte)ButtonPressedState.Beginning && !cts.IsCancellationRequested)
                 {
                     // Sleep so the animation plays a bit
                     Thread.Sleep(50);
+
                     // Then press skip cutscene with a minor delay
                     StaticHelpers.PressKey(_InputSimulator, ConfigurationReader.KeyCutsceneSkip, ConfigurationReader.RandomInputDelay);
 
@@ -328,16 +344,22 @@ namespace AutoSteamApp.Automaton
                     {
                         // When the steam gauge has reset, it means we can press space to start again.
                         if (_SteamworksData.SteamGuageValue == 0)
+                        {
                             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
+                        }
                     }
+
                     // Reread the current button press state
                     currentButtonPressState = _SteamworksData.InputPressStateCheck;
 
-                    // Wait until we have focus
+                    // Print if we dont have focus
                     if (!_Process.HasFocus())
+                    {
                         Log.Message("Waiting for MHW to have focus.");
-                    while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
+                    }
 
+                    // Wait for focus
+                    while (!_Process.HasFocus() && !cts.IsCancellationRequested) { };
                 }
             }
             catch (Exception e)

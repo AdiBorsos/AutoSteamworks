@@ -21,15 +21,23 @@ namespace AutoSteamApp.Helpers
         public static bool AllIdentical<T>(this T[] array)
         {
             if (array == null)
+            {
                 throw new Exception("Equality test cannot be calculated on a null array");
+            }
+
             if (array.Length < 2)
+            {
                 return true;
+            }
 
             for (int i = 1; i < array.Length; i++)
             {
                 if (!array[i].Equals(array[i - 1]))
+                {
                     return false;
+                }
             }
+
             return true;
         }
 
@@ -51,6 +59,7 @@ namespace AutoSteamApp.Helpers
                 array[r] = array[i];
                 array[i] = t;
             }
+
             return array;
         }
 

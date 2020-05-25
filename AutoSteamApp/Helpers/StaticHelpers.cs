@@ -38,8 +38,10 @@ namespace AutoSteamApp.Helpers
             if (!ConfigurationReader.ConfigLoadedProperly)
             {
                 Log.Warning("Config file was unable to load.");
+
                 return;
             }
+
             Log.Message("\tIs Azerty: " + ConfigurationReader.IsAzerty);
             Log.Message("\tLog File: " + (ConfigurationReader.LogFile ?? "Not supplied"));
             Log.Message("\tRandom Run: " + ConfigurationReader.RandomRun);
@@ -77,6 +79,7 @@ namespace AutoSteamApp.Helpers
                     {
                         FileStream logStream = File.Create(logFile);
                         Log.SetStream(logStream, true, LoggingTypes);
+
                         return;
                     }
                     // In the event of failure, log to console instead
@@ -84,13 +87,17 @@ namespace AutoSteamApp.Helpers
                     {
                         Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
                         Log.Exception(e, logFile);
+
                         return;
                     }
                 }
+
                 // If no log file is specified, log to console instead
                 Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
+
                 //Log.Warning("No log file specified. All logs written to console.");
                 return;
+
             }
             // If not in debug mode, write messages to console
             Log.SetStream(Console.OpenStandardOutput(), false, LoggingTypes);
@@ -131,8 +138,10 @@ namespace AutoSteamApp.Helpers
             }
 
             VirtualKeyCode[] retVal = dict.OrderBy(x => x.Key).Select(y => y.Value).ToArray();
+
             // Return the virtual key code values ordered by the index assigned from the byte sequence
             Log.Debug("Sequence found: [" + string.Join(", ", retVal.Select(x => x.ToString())) + "]");
+
             return retVal;
         }
 
@@ -155,6 +164,7 @@ namespace AutoSteamApp.Helpers
                 retVal[1] = VirtualKeyCode.VK_W;
                 retVal[2] = VirtualKeyCode.VK_D;
             }
+
             return retVal.Shuffle(rng);
         }
 
@@ -169,8 +179,8 @@ namespace AutoSteamApp.Helpers
             sim.Keyboard.KeyDown(key);
             sim.Keyboard.Sleep(delay);
             sim.Keyboard.KeyUp(key);
+
             return;
         }
-
     }
 }
