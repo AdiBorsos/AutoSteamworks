@@ -148,7 +148,7 @@ namespace AutoSteamApp.Automaton
             }
             StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.SPACE, ConfigurationReader.RandomInputDelay);
             Thread.Sleep(ConfigurationReader.RandomInputDelay);
-            StaticHelpers.PressKey(_InputSimulator, VirtualKeyCode.VK_X, ConfigurationReader.RandomInputDelay);
+            StaticHelpers.PressKey(_InputSimulator, ConfigurationReader.KeyCutsceneSkip, ConfigurationReader.RandomInputDelay);
         }
 
 
