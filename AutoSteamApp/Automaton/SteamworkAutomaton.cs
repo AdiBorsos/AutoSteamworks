@@ -259,7 +259,7 @@ namespace AutoSteamApp.Automaton
 
                 // Use rng to check if we win or not
                 // TODO: maybe not create a new instance every time? I'll need to consult with someone about the probability distribution
-                // when doing it this way.
+                // or System.Random when doing it this way.
                 Random rng = new Random();
 
                 // If we fail the rng check, reverse the inputs
