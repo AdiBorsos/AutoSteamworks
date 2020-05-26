@@ -5,7 +5,7 @@
 ## About
 ---
 
-The Atuo Steamworks is a tool used to automate the Monster Hunter World: Iceborne mini-game, the steamworks. By reading the memory values found within the the Monster Hunter World process, the automated is also able to determine the correct sequence to win every round.
+The Auto Steamworks is a tool used to automate the Monster Hunter World: Iceborne mini-game, the steamworks. By reading the memory values found within the the Monster Hunter World process, the automated is also able to determine the correct sequence to win every round.
 
 Please use the [Github page](https://github.com/AdiBorsos/AutoSteamworks) to ask for features.
 
