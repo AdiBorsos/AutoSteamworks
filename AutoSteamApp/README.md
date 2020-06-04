@@ -24,7 +24,7 @@ Please use the [Github page](https://github.com/AdiBorsos/AutoSteamworks) to ask
 #### How To Use
 ---
 ##### To start
-###### Currently supported MHW:IB version: 410014
+###### Currently supported MHW:IB version: 410918
 1. MHW:IB must be running, and you must have loaded into a character file.
 2. Open the steamworks mini game. Press "start" to begin the game.
 3. Execute AutoSteamworks.exe.

@@ -20,7 +20,7 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The MHW:IB version which is the currently supported.
         /// </summary>
-        public const int SupportedGameVersion = 410014;
+        public const int SupportedGameVersion = 410918;
 
         /// <summary>
         /// Regex used to match the supported version in the process title.
@@ -34,12 +34,12 @@ namespace AutoSteamApp.ProcessMemory
         /// <summary>
         /// The offset from the starting address to the save data of the player
         /// </summary>
-        public const ulong OffsetToSaveData = 0x4F54590;
+        public const ulong OffsetToSaveData = 0x4F53580;
 
         /// <summary>
         /// The offset from the base address to the steamworks combo values
         /// </summary>
-        public const ulong OffsetToSteamworksValues = 0x4EC78C0;
+        public const ulong OffsetToSteamworksValues = 0x4EC68C0;
 
         /// <summary>
         /// The offset from the start address pointer value to the save data pointer address
