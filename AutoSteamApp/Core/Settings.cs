@@ -8,7 +8,7 @@ namespace AutoSteamApp.Core
     public static class Settings
     {
         #region magic numbers
-        public static string SupportedGameVersion = "413161";
+        public static string SupportedGameVersion = "414136";
 
         public static ulong Off_Base = 0x140000000;
         public static ulong Off_SteamworksCombo = 0x4F2E8F0; 
