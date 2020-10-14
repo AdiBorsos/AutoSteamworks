@@ -1,6 +1,6 @@
 # Auto Steamworks Exec
-Supported version: 419914 (V15.01.00)
-App Version: 15.0
+Supported version: 420540 (V15.02.00)
+App Version: 16.0
 
 Functionality
 Reads game memory and finds the "expected" key pattern that the Steamworks needs and then Types that pattern.
