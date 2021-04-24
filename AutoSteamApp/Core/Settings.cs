@@ -101,6 +101,22 @@ namespace AutoSteamApp.Core
             }
         }
 
+        private static bool _shouldExitTheProgramWhenMHWClose = false;
+        public static bool ShouldExitTheProgramWhenMHWClose
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings.AllKeys.Any(key => key == "ShouldExitTheProgramWhenMHWClose"))
+                {
+                    return bool.TryParse(ConfigurationManager.AppSettings["ShouldExitTheProgramWhenMHWClose"].Trim(), out _shouldExitTheProgramWhenMHWClose) ?
+                        _shouldExitTheProgramWhenMHWClose :
+                        (_shouldExitTheProgramWhenMHWClose = false);
+                }
+
+                return _shouldExitTheProgramWhenMHWClose;
+            }
+        }
+
         #region keycodes
 
         private static int _keyCodeStart = -1;
