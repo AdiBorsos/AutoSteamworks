@@ -18,6 +18,8 @@ namespace AutoSteamApp
         private const string ProcessName = "MonsterHunterWorld";
         private static volatile bool shouldStop = false;
         private static volatile bool shouldStart = false;
+        private static volatile bool shouldExit = false;
+        private static volatile bool isWaitingNextRun = false;
 
         private static Random rnd = new Random();
         private static KeystrokeAPI api = new KeystrokeAPI();
@@ -44,6 +46,7 @@ namespace AutoSteamApp
         private static CancellationTokenSource ct = new CancellationTokenSource();
         private static bool IsCorrectVersion = false;
         private static bool IsSmartRun = false;
+        private static int _PressedStopCount = 0;
 
         static void Main(string[] args)
         {
@@ -52,15 +55,54 @@ namespace AutoSteamApp
             HookKeyboardEvents();
 
             Startup();
+            
+            while (!shouldExit)
+            {
+                if (IsCorrectVersion)
+                {
+                    DoWork(IsSmartRun);
+                }
+                else
+                {
+                    DoRandomWork();
+                }
 
-            if (IsCorrectVersion)
-            {
-                DoWork(IsSmartRun);
+                WaitForNextRun();
             }
-            else
+        }
+
+        private static void WaitForNextRun()
+        {
+            Console.WriteLine($"AutoSteamApp is on wait for next run.");
+            Console.WriteLine($"Please press {((KeyCode) Settings.KeyCodeStop).ToString()} several times if you want to close AutoSteamApp.");
+
+            ct.Dispose();
+            ct = new CancellationTokenSource();
+            shouldStart = false;
+            shouldStop = false;
+
+            _PressedStopCount = 0;
+            isWaitingNextRun = true;
+            while (!shouldStart && !ct.IsCancellationRequested)
             {
-                DoRandomWork();
+                Thread.Sleep(1000);
+                
+                if (shouldExit)
+                {
+                    break;
+                }
+                if (mhw != null && mhw.HasExited)
+                {
+                    Logger.LogInfo("The MonsterHunterWorld process has exited. Please restart the game.");
+                    if (Settings.ShouldExitTheProgramWhenMHWClose)
+                    {
+                        shouldExit = true;
+                        break;
+                    }
+                }
             }
+
+            isWaitingNextRun = false;
         }
 
         private static void WriteMenu()
@@ -198,6 +240,10 @@ namespace AutoSteamApp
 
         private static bool IsCurrentActiveMHW()
         {
+            if (mhw == null)
+            {
+                return false;
+            }
             return mhw.MainWindowTitle == GetActiveWindowTitle();
         }
 
@@ -231,6 +277,11 @@ namespace AutoSteamApp
 
                     if (ordered == null)
                     {
+                        if (mhw.HasExited)
+                        {
+                            shouldStop = true;
+                            continue;
+                        }
                         Logger.LogInfo("The Steamworks minigame is not started. Please enter the minigame and Press 'Space' so that you see the first letters on your screen.");
 
                         // try again..
@@ -437,14 +488,24 @@ namespace AutoSteamApp
 
                     if (character.KeyCode == (KeyCode)Settings.KeyCodeStop)
                     {
+                        if (isWaitingNextRun)
+                        {
+                            const int exitCriteria = 3;
+                            Logger.LogInfo($"Captured exit {++_PressedStopCount} / {exitCriteria}");
+                            if (_PressedStopCount >= exitCriteria)
+                            {
+                                shouldExit = true;
+                                Logger.LogInfo($"Captured Exit Program. Exiting..!");
+                            }
+                            return;
+                        }
+
                         ct.Cancel();
 
                         shouldStart = true;
                         shouldStop = true;
 
-                        Logger.LogInfo($"Captured Stop execution. Exiting..!");
-
-                        Application.Exit();
+                        Logger.LogInfo($"Captured Stop execution.");
                     }
                 });
 
