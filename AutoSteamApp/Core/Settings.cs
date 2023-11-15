@@ -8,13 +8,13 @@ namespace AutoSteamApp.Core
     public static class Settings
     {
         #region magic numbers
-        public static string SupportedGameVersion = "421471";
+        public static string SupportedGameVersion = "421652"; // update 15.21.00
 
         public static ulong Off_Base = 0x140000000;
-        public static ulong Off_SteamworksCombo = 0x4FE79C0;
+        public static ulong Off_SteamworksCombo = 0x4F859F0; // update 15.20.00
 
-        public static ulong Off_SaveData = 0x5073E80;
-        public static ulong Off_DiffSlot = 0x27E9F0; // start of each save slot data slotnr * off
+        public static ulong Off_SaveData = 0x5011710; //update 15.20.00
+        public static ulong Off_DiffSlot = 0x26CC00; // start of each save slot data slotnr * off. update 15.20.00
         #endregion
 
         private static uint _DelayBetweenCombo = 500;
